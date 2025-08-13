@@ -53,77 +53,61 @@
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script>
-        const map = L.map('map').setView([-34.6, -58.45], 12);
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var map = L.map('map').setView([-34.6, -58.45], 12);
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+            maxZoom: 19
         }).addTo(map);
 
-        let markers = [];
-        let fechas = new Set();
+        var markers = [];
+        var fechas = new Set();
 
-        // Función para normalizar fecha DD/MM/YYYY
-        function parseFecha(fechaStr) {
-            const partes = fechaStr.split('/');
-            if (partes.length === 3) {
-                const [dia, mes, anio] = partes;
-                return new Date(`${anio}-${mes}-${dia}`);
-            }
-            return new Date(fechaStr);
-        }
-
-        Papa.parse("clausura.csv", {
+        Papa.parse('clausura.csv', {
             download: true,
             header: true,
-            complete: function(results) {
-                const data = results.data.filter(row => row.latitud && row.longitud);
+            complete: function (results) {
+                results.data.forEach(function (row) {
+                    if (row.latitud && row.longitud) {
+                        let lat = parseFloat(row.latitud);
+                        let lon = parseFloat(row.longitud);
 
-                data.forEach(row => {
-                    fechas.add(`${row.ID} - ${row.Fecha}`);
-                });
+                        if (!isNaN(lat) && !isNaN(lon)) {
+                            fechas.add(row.ID);
 
-                // Ordenar fechas por ID numérico
-                const fechasOrdenadas = Array.from(fechas).sort((a, b) => {
-                    const idA = parseInt(a.split(' - ')[0]);
-                    const idB = parseInt(b.split(' - ')[0]);
-                    return idA - idB;
-                });
-
-                const fechaSelect = document.getElementById("fechaSelect");
-                fechasOrdenadas.forEach(f => {
-                    const option = document.createElement("option");
-                    option.value = f;
-                    option.textContent = f;
-                    fechaSelect.appendChild(option);
-                });
-
-                function renderMarkers(filtro) {
-                    markers.forEach(m => map.removeLayer(m));
-                    markers = [];
-
-                    data.forEach(row => {
-                        const labelFecha = `${row.ID} - ${row.Fecha}`;
-                        if (!filtro || filtro === labelFecha) {
-                            const marker = L.marker([parseFloat(row.latitud), parseFloat(row.longitud)])
-                                .addTo(map)
-                                .bindPopup(
-                                    `<b>${row.Local} vs ${row.Visitante}</b><br>${labelFecha}<br>
-                                     <a href="https://www.google.com/maps?q=${row.latitud},${row.longitud}" target="_blank">
-                                        Ver en Google Maps
-                                     </a>`
-                                );
-                            markers.push(marker);
+                            let marker = L.marker([lat, lon]).bindPopup(`
+                                <b>${row.Local} vs ${row.Visitante}</b><br>
+                                Fecha: ${row.Fecha}<br>
+                                <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">
+                                    Ver en Google Maps
+                                </a>
+                            `);
+                            markers.push({ fecha: row.ID, marker: marker });
                         }
-                    });
-                }
-
-                fechaSelect.addEventListener("change", function() {
-                    renderMarkers(this.value);
+                    }
                 });
 
-                renderMarkers("");
+                // Ordenar fechas ascendente
+                let sortedFechas = Array.from(fechas).sort((a, b) => parseInt(a) - parseInt(b));
+
+                let filtro = document.getElementById('filtro-fecha');
+                sortedFechas.forEach(f => {
+                    let option = document.createElement('option');
+                    option.value = f;
+                    option.text = `Fecha ${f}`;
+                    filtro.appendChild(option);
+                });
+
+                filtro.addEventListener('change', function () {
+                    markers.forEach(m => map.removeLayer(m.marker));
+                    markers
+                        .filter(m => this.value === "" || m.fecha == this.value)
+                        .forEach(m => m.marker.addTo(map));
+                });
             }
         });
-    </script>
+    });
+</script>
 </body>
 </html>
