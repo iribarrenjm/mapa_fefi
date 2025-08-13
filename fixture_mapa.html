@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mapa de Clubes - FEFI 2025</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+  #map { height: 90vh; width: 100%; }
+  body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+  .controls { padding: 10px; background: #f0f0f0; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <label for="fechaFiltro">Filtrar por fecha:</label>
+  <select id="fechaFiltro">
+    <option value="">Todas</option>
+  </select>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+
+<script>
+const csvFile = 'clausura.csv';
+let mapa = L.map('map').setView([-34.6037, -58.3816], 10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(mapa);
+
+let marcadores = [];
+let fechasUnicas = new Set();
+let datosCSV = [];
+let campoLat = null, campoLon = null, campoFecha = null;
+
+// Función para normalizar fechas a YYYY-MM-DD
+function normalizarFecha(fechaStr) {
+  if (!fechaStr) return null;
+  fechaStr = fechaStr.trim();
+
+  let dmY = fechaStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (dmY) {
+    let [_, d, m, y] = dmY;
+    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+
+  let yMd = fechaStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (yMd) {
+    let [_, y, m, d] = yMd;
+    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+
+  let dObj = new Date(fechaStr);
+  if (!isNaN(dObj.getTime())) {
+    let y = dObj.getFullYear();
+    let m = String(dObj.getMonth() + 1).padStart(2, '0');
+    let d = String(dObj.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  return fechaStr;
+}
+
+// Cargar CSV
+Papa.parse(csvFile, {
+  download: true,
+  header: true,
+  complete: function(results) {
+    datosCSV = results.data.filter(row => Object.keys(row).length > 1);
+
+    let headers = Object.keys(datosCSV[0]);
+    campoLat = headers.find(h => h.toLowerCase().includes('lat'));
+    campoLon = headers.find(h => h.toLowerCase().includes('lon') || h.toLowerCase().includes('lng') || h.toLowerCase().includes('long'));
+    campoFecha = headers.find(h => h.toLowerCase().includes('fecha') || h.toLowerCase().includes('date'));
+
+    if (campoFecha) {
+      datosCSV.forEach(row => {
+        let fechaNorm = normalizarFecha(row[campoFecha]);
+        if (fechaNorm) {
+          row[campoFecha] = fechaNorm;
+          fechasUnicas.add(fechaNorm);
+        }
+      });
+
+      let fechasOrdenadas = Array.from(fechasUnicas).sort((a, b) => new Date(a) - new Date(b));
+      let select = document.getElementById('fechaFiltro');
+      fechasOrdenadas.forEach(fecha => {
+        let opt = document.createElement('option');
+        opt.value = fecha;
+        opt.textContent = fecha;
+        select.appendChild(opt);
+      });
+    }
+
+    mostrarMarcadores();
+  }
+});
+
+function mostrarMarcadores(fechaFiltro = "") {
+  marcadores.forEach(m => mapa.removeLayer(m));
+  marcadores = [];
+
+  let bounds = [];
+
+  datosCSV.forEach(row => {
+    let lat = parseFloat(row[campoLat]?.replace(",", ".").replace("\", ""));
+    let lon = parseFloat(row[campoLon]?.replace(",", ".").replace("\", ""));
+    if (!isNaN(lat) && !isNaN(lon)) {
+      if (!fechaFiltro || (campoFecha && row[campoFecha] === fechaFiltro)) {
+        let fechaTxt = campoFecha && row[campoFecha] ? `<b>Fecha:</b> ${row[campoFecha]}<br>` : '';
+        let local = row['Local']?.trim() || 'Local desconocido';
+        let visitante = row['Visitante']?.trim() || 'Visitante desconocido';
+        let equipos = `<b>Local:</b> ${local}<br><b>Visitante:</b> ${visitante}<br>`;
+        let linkGoogle = `<a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">Ver en Google Maps</a>`;
+        let popup = `${fechaTxt}${equipos}${linkGoogle}`;
+        let marcador = L.marker([lat, lon]).bindPopup(popup).addTo(mapa);
+        marcadores.push(marcador);
+        bounds.push([lat, lon]);
+      }
+    }
+  });
+
+  if (bounds.length) {
+    mapa.fitBounds(bounds, { padding: [30, 30] });
+  }
+}
+
+document.getElementById('fechaFiltro').addEventListener('change', function() {
+  mostrarMarcadores(this.value);
+});
+</script>
+
+</body>
+</html>
