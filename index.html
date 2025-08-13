@@ -6,108 +6,103 @@
     <title>Fixture Clausura Fefi 2025 - Villa Sahores</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
         header {
             background-color: green;
             color: white;
-            text-align: center;
             padding: 10px;
+            text-align: center;
             font-size: 1.5em;
         }
-        #map {
-            height: calc(100vh - 100px);
-            width: 100%;
-        }
-        #controls {
+        #map { height: 80vh; width: 100%; }
+        #filter {
             padding: 10px;
             background: #f0f0f0;
-            text-align: center;
         }
-        select {
-            padding: 5px;
-            font-size: 1em;
-        }
+        select { padding: 5px; font-size: 1em; }
         @media (max-width: 600px) {
-            header {
-                font-size: 1.2em;
-            }
-            select {
-                width: 100%;
-                margin-top: 5px;
-            }
+            header { font-size: 1.2em; }
+            select { width: 100%; }
         }
     </style>
 </head>
 <body>
-    <header>Fixture Clausura Fefi 2025 - Villa Sahores</header>
-    <div id="controls">
-        <label for="fechaSelect">Filtrar por Fecha:</label>
-        <select id="fechaSelect">
-            <option value="">Todas</option>
-        </select>
-    </div>
-    <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var map = L.map('map').setView([-34.6, -58.45], 12);
+<header>Fixture Clausura Fefi 2025 - Villa Sahores</header>
+<div id="filter">
+    <label for="fechaSelect">Filtrar por número de fecha:</label>
+    <select id="fechaSelect">
+        <option value="">Todas</option>
+    </select>
+</div>
+<div id="map"></div>
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-        }).addTo(map);
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+    const map = L.map('map').setView([-34.6, -58.45], 12);
 
-        var markers = [];
-        var fechas = new Set();
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
 
-        Papa.parse('clausura.csv', {
-            download: true,
-            header: true,
-            complete: function (results) {
-                results.data.forEach(function (row) {
-                    if (row.latitud && row.longitud) {
-                        let lat = parseFloat(row.latitud);
-                        let lon = parseFloat(row.longitud);
+    let markers = [];
+    let allData = [];
 
-                        if (!isNaN(lat) && !isNaN(lon)) {
-                            fechas.add(row.ID);
+    function addMarkers(data, selectedFecha) {
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
 
-                            let marker = L.marker([lat, lon]).bindPopup(`
-                                <b>${row.Local} vs ${row.Visitante}</b><br>
-                                Fecha: ${row.Fecha}<br>
-                                <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">
-                                    Ver en Google Maps
-                                </a>
-                            `);
-                            markers.push({ fecha: row.ID, marker: marker });
-                        }
-                    }
-                });
+        data.forEach(row => {
+            const idFecha = row.ID;
+            const fecha = row.Fecha;
+            const local = row.Local;
+            const visitante = row.Visitante;
+            const lat = parseFloat(row.latitud);
+            const lon = parseFloat(row.longitud);
 
-                // Ordenar fechas ascendente
-                let sortedFechas = Array.from(fechas).sort((a, b) => parseInt(a) - parseInt(b));
-
-                let filtro = document.getElementById('filtro-fecha');
-                sortedFechas.forEach(f => {
-                    let option = document.createElement('option');
-                    option.value = f;
-                    option.text = `Fecha ${f}`;
-                    filtro.appendChild(option);
-                });
-
-                filtro.addEventListener('change', function () {
-                    markers.forEach(m => map.removeLayer(m.marker));
-                    markers
-                        .filter(m => this.value === "" || m.fecha == this.value)
-                        .forEach(m => m.marker.addTo(map));
-                });
+            if (!isNaN(lat) && !isNaN(lon)) {
+                if (!selectedFecha || selectedFecha === idFecha) {
+                    const marker = L.marker([lat, lon]).addTo(map);
+                    marker.bindPopup(`
+                        <b>Fecha ${idFecha}</b><br>
+                        ${fecha}<br>
+                        ${local} vs ${visitante}<br>
+                        <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">
+                            Ver en Google Maps
+                        </a>
+                    `);
+                    markers.push(marker);
+                }
             }
         });
+    }
+
+    Papa.parse("clausura.csv", {
+        download: true,
+        header: true,
+        delimiter: ";",
+        complete: function(results) {
+            allData = results.data.filter(row => row.ID && row.latitud && row.longitud);
+
+            const fechasUnicas = [...new Set(allData.map(row => row.ID))].sort((a, b) => parseInt(a) - parseInt(b));
+
+            const fechaSelect = document.getElementById('fechaSelect');
+            fechasUnicas.forEach(fecha => {
+                const option = document.createElement('option');
+                option.value = fecha;
+                option.textContent = fecha;
+                fechaSelect.appendChild(option);
+            });
+
+            addMarkers(allData, "");
+
+            fechaSelect.addEventListener('change', function() {
+                addMarkers(allData, this.value);
+            });
+        }
     });
 </script>
+
 </body>
 </html>
