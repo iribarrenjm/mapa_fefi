@@ -2,155 +2,104 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mapa de Fechas Clausura FEFI 2025 - Villa Sahores</title>
+<title>Fixture Clausura Fefi 2025 - Villa Sahores</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-  }
-  #map {
-    height: 80vh;
-    width: 100%;
-  }
-  .controls {
+  body { margin: 0; font-family: Arial, sans-serif; }
+  header {
+    background: #333;
+    color: white;
     padding: 10px;
-    background: #f8f8f8;
+    text-align: center;
+    font-size: 18px;
+  }
+  #controls {
+    padding: 10px;
+    background: #f0f0f0;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 10px;
   }
-  label, select {
-    font-size: 1rem;
+  select {
+    padding: 5px;
+    font-size: 14px;
   }
-  @media (max-width: 600px) {
-    .controls {
-      padding: 8px;
-    }
-    label, select {
-      font-size: 0.9rem;
-    }
-  }
+  #map { height: calc(100vh - 100px); }
 </style>
 </head>
 <body>
 
-<div class="controls">
-  <label for="fechaFiltro">Filtrar por fecha:</label>
-  <select id="fechaFiltro">
-    <option value="">Todas</option>
+<header>Fixture Clausura Fefi 2025 - Villa Sahores</header>
+<div id="controls">
+  <label for="dateFilter">Filtrar por fecha:</label>
+  <select id="dateFilter">
+    <option value="all">Todas</option>
   </select>
 </div>
-
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
-const csvFile = 'clausura.csv';
-let mapa = L.map('map').setView([-34.6037, -58.3816], 10);
+const map = L.map('map').setView([-34.6, -58.45], 12);
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(mapa);
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-let marcadores = [];
-let fechasUnicas = new Set();
-let datosCSV = [];
-let campoLat = null, campoLon = null, campoFecha = null;
+let markers = [];
+let allData = [];
 
-function normalizarFecha(fechaStr) {
-  if (!fechaStr) return null;
-  fechaStr = fechaStr.trim();
-  let dmY = fechaStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (dmY) {
-    let [_, d, m, y] = dmY;
-    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  let yMd = fechaStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (yMd) {
-    let [_, y, m, d] = yMd;
-    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  let dObj = new Date(fechaStr);
-  if (!isNaN(dObj.getTime())) {
-    let y = dObj.getFullYear();
-    let m = String(dObj.getMonth() + 1).padStart(2, '0');
-    let d = String(dObj.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-  return fechaStr;
-}
-
-Papa.parse(csvFile, {
+// Cargar CSV
+Papa.parse("clausura.csv", {
   download: true,
   header: true,
   complete: function(results) {
-    datosCSV = results.data.filter(row => Object.keys(row).length > 1);
-    let headers = Object.keys(datosCSV[0]);
-    campoLat = headers.find(h => h.toLowerCase().includes('lat'));
-    campoLon = headers.find(h => h.toLowerCase().includes('lon') || h.toLowerCase().includes('lng') || h.toLowerCase().includes('long'));
-    campoFecha = headers.find(h => h.toLowerCase().includes('fecha') || h.toLowerCase().includes('date'));
-
-    if (campoFecha) {
-      datosCSV.forEach(row => {
-        let fechaNorm = normalizarFecha(row[campoFecha]);
-        if (fechaNorm) {
-          row[campoFecha] = fechaNorm;
-          fechasUnicas.add(fechaNorm);
-        }
-      });
-
-      let fechasOrdenadas = Array.from(fechasUnicas).sort((a, b) => new Date(a) - new Date(b));
-      let select = document.getElementById('fechaFiltro');
-      fechasOrdenadas.forEach(fecha => {
-        let opt = document.createElement('option');
-        opt.value = fecha;
-        opt.textContent = fecha;
-        select.appendChild(opt);
-      });
-    }
-
-    mostrarMarcadores();
+    allData = results.data;
+    populateDateFilter();
+    plotMarkers("all");
   }
 });
 
-function mostrarMarcadores(fechaFiltro = "") {
-  marcadores.forEach(m => mapa.removeLayer(m));
-  marcadores = [];
-
-  let bounds = [];
-
-  datosCSV.forEach(row => {
-    let lat = parseFloat(row[campoLat]?.replace(",", ".").replace("\", ""));
-    let lon = parseFloat(row[campoLon]?.replace(",", ".").replace("\", ""));
-    if (!isNaN(lat) && !isNaN(lon)) {
-      if (!fechaFiltro || (campoFecha && row[campoFecha] === fechaFiltro)) {
-        let fechaTxt = campoFecha && row[campoFecha] ? `<b>Fecha:</b> ${row[campoFecha]}<br>` : '';
-        let local = row['Local']?.trim() || 'Local desconocido';
-        let visitante = row['Visitante']?.trim() || 'Visitante desconocido';
-        let equipos = `<b>Local:</b> ${local}<br><b>Visitante:</b> ${visitante}<br>`;
-        let linkGoogle = `<a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">Ver en Google Maps</a>`;
-        let popup = `${fechaTxt}${equipos}${linkGoogle}`;
-        let marcador = L.marker([lat, lon]).bindPopup(popup).addTo(mapa);
-        marcadores.push(marcador);
-        bounds.push([lat, lon]);
-      }
-    }
+// Poblar el filtro de fechas
+function populateDateFilter() {
+  let dates = [...new Set(allData.map(row => row.Fecha.trim()))];
+  dates.sort((a,b) => {
+    let [da,ma,ya] = a.split("/").map(Number);
+    let [db,mb,yb] = b.split("/").map(Number);
+    return new Date(ya, ma-1, da) - new Date(yb, mb-1, db);
+  });
+  
+  const select = document.getElementById("dateFilter");
+  dates.forEach(date => {
+    let option = document.createElement("option");
+    option.value = date;
+    option.textContent = date;
+    select.appendChild(option);
   });
 
-  if (bounds.length) {
-    mapa.fitBounds(bounds, { padding: [30, 30] });
-  }
+  select.addEventListener("change", () => {
+    plotMarkers(select.value);
+  });
 }
 
-document.getElementById('fechaFiltro').addEventListener('change', function() {
-  mostrarMarcadores(this.value);
-});
-</script>
+// Mostrar marcadores filtrados
+function plotMarkers(filterDate) {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
 
+  allData.forEach(row => {
+    if (!row.Latitud || !row.Longitud) return;
+    if (filterDate !== "all" && row.Fecha.trim() !== filterDate) return;
+
+    const marker = L.marker([parseFloat(row.Latitud), parseFloat(row.Longitud)]).addTo(map);
+    let popupContent = `<b>${row.Club}</b><br>Fecha: ${row.Fecha}<br>`;
+    popupContent += `<a href="https://www.google.com/maps?q=${row.Latitud},${row.Longitud}" target="_blank">Abrir en Google Maps</a>`;
+    marker.bindPopup(popupContent);
+    markers.push(marker);
+  });
+}
+</script>
 </body>
 </html>
