@@ -483,34 +483,20 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Crear iconos personalizados en verde
-    const homeIcon = L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/447/447031.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
-      className: 'home-icon'
+    // Crear iconos personalizados con colores correctos
+    const homeIcon = L.divIcon({
+      html: '<div style="background-color: #1e8449; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="fas fa-home" style="color: white; font-size: 12px;"></i></div>',
+      className: 'custom-div-icon',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
     });
 
-    const awayIcon = L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
-      className: 'away-icon'
+    const awayIcon = L.divIcon({
+      html: '<div style="background-color: #f9c80e; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="fas fa-bus" style="color: #0a3d1d; font-size: 12px;"></i></div>',
+      className: 'custom-div-icon',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
     });
-
-    // Añadir estilo a los iconos
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .home-icon path {
-        fill: #1e8449 !important;
-      }
-      .away-icon path {
-        fill: #f9c80e !important;
-      }
-    `;
-    document.head.appendChild(style);
 
     // Contadores para estadísticas
     let homeMatches = 0;
@@ -543,7 +529,7 @@
         const marker = L.marker([parseFloat(match.latitud), parseFloat(match.longitud)], {icon})
           .bindPopup(`
             <div style="text-align: center; padding: 15px; background: linear-gradient(to right, #0a3d1d, #1e8449); border-radius: 10px; border: 2px solid ${borderColor}; color: white;">
-              <h3 style="margin: 0 0 10px; color: ${markerColor}; border-bottom: 1px solid ${borderColor}; padding-bottom: 8px;">ID ${match.ID} - ${match.Fecha}</h3>
+              <h3 style="margin: 0 0 10px; color: ${markerColor}; border-bottom: 1px solid ${borderColor}; padding-bottom: 8px;">Fecha ${match.ID} - ${match.Fecha}</h3>
               <p style="margin: 8px 0;"><b><i class="fas fa-home" style="color: ${isHome ? markerColor : '#aaa'}"></i> Local:</b> ${match.Local}</p>
               <p style="margin: 8px 0;"><b><i class="fas fa-bus" style="color: ${isAway ? markerColor : '#aaa'}"></i> Visitante:</b> ${match.Visitante}</p>
               <a href="https://www.google.com/maps?q=${match.latitud},${match.longitud}" 
@@ -577,7 +563,7 @@
       matches.forEach(match => {
         const option = document.createElement('option');
         option.value = match.ID;
-        option.textContent = `ID ${match.ID} - ${match.Fecha}`;
+        option.textContent = `Fecha ${match.ID} - ${match.Fecha}`;
         selector.appendChild(option);
       });
     }
