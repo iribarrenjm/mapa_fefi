@@ -1,112 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fixture Clausura Fefi 2025 - Villa Sahores</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-    }
-    header {
-        background-color: #004080;
-        color: white;
-        padding: 10px;
-        text-align: center;
-        font-size: 1.5em;
-    }
-    #controls {
-        padding: 10px;
-        background-color: #f0f0f0;
-    }
-    #map {
-        flex: 1;
-    }
-    select {
-        padding: 5px;
-        font-size: 1em;
-        max-width: 100%;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixture Clausura Fefi 2025 - Villa Sahores</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        header {
+            background-color: green;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 1.5em;
+        }
+        #map {
+            height: calc(100vh - 100px);
+            width: 100%;
+        }
+        #controls {
+            padding: 10px;
+            background: #f0f0f0;
+            text-align: center;
+        }
+        select {
+            padding: 5px;
+            font-size: 1em;
+        }
+        @media (max-width: 600px) {
+            header {
+                font-size: 1.2em;
+            }
+            select {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <header>Fixture Clausura Fefi 2025 - Villa Sahores</header>
+    <div id="controls">
+        <label for="fechaSelect">Filtrar por Fecha:</label>
+        <select id="fechaSelect">
+            <option value="">Todas</option>
+        </select>
+    </div>
+    <div id="map"></div>
 
-<header>Fixture Clausura Fefi 2025 - Villa Sahores</header>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script>
+        const map = L.map('map').setView([-34.6, -58.45], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-<div id="controls">
-    <label for="dateFilter">Filtrar por Fecha N°: </label>
-    <select id="dateFilter">
-        <option value="">Todas</option>
-    </select>
-</div>
+        let markers = [];
+        let fechas = new Set();
 
-<div id="map"></div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-<script>
-    const map = L.map('map').setView([-34.6, -58.45], 12);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let markers = [];
-    let fechas = new Set();
-
-    Papa.parse('clausura.csv', {
-        download: true,
-        header: true,
-        complete: function(results) {
-            results.data.forEach(row => {
-                if(row.latitud && row.longitud){
-                    const idFecha = row.ID; // Usamos el ID como número de fecha
-                    fechas.add(idFecha);
-
-                    const marker = L.marker([parseFloat(row.latitud), parseFloat(row.longitud)]).bindPopup(`
-                        <b>Fecha N°${idFecha}</b><br>
-                        ${row.Local} vs ${row.Visitante}<br>
-                        ${row.Fecha}<br>
-                        <a href="https://www.google.com/maps?q=${row.latitud},${row.longitud}" target="_blank">
-                            <button>Ver en Google Maps</button>
-                        </a>
-                    `);
-                    marker.options.fechaId = idFecha;
-                    markers.push(marker);
-                }
-            });
-
-            // Ordenar fechas numéricamente
-            const sortedFechas = Array.from(fechas).sort((a, b) => parseInt(a) - parseInt(b));
-            const select = document.getElementById('dateFilter');
-            sortedFechas.forEach(f => {
-                const option = document.createElement('option');
-                option.value = f;
-                option.textContent = f;
-                select.appendChild(option);
-            });
-
-            // Agregar todos los marcadores al mapa
-            markers.forEach(m => m.addTo(map));
+        // Función para normalizar fecha DD/MM/YYYY
+        function parseFecha(fechaStr) {
+            const partes = fechaStr.split('/');
+            if (partes.length === 3) {
+                const [dia, mes, anio] = partes;
+                return new Date(`${anio}-${mes}-${dia}`);
+            }
+            return new Date(fechaStr);
         }
-    });
 
-    document.getElementById('dateFilter').addEventListener('change', function() {
-        const value = this.value;
-        markers.forEach(m => {
-            if(value === "" || m.options.fechaId == value){
-                m.addTo(map);
-            } else {
-                map.removeLayer(m);
+        Papa.parse("clausura.csv", {
+            download: true,
+            header: true,
+            complete: function(results) {
+                const data = results.data.filter(row => row.latitud && row.longitud);
+
+                data.forEach(row => {
+                    fechas.add(`${row.ID} - ${row.Fecha}`);
+                });
+
+                // Ordenar fechas por ID numérico
+                const fechasOrdenadas = Array.from(fechas).sort((a, b) => {
+                    const idA = parseInt(a.split(' - ')[0]);
+                    const idB = parseInt(b.split(' - ')[0]);
+                    return idA - idB;
+                });
+
+                const fechaSelect = document.getElementById("fechaSelect");
+                fechasOrdenadas.forEach(f => {
+                    const option = document.createElement("option");
+                    option.value = f;
+                    option.textContent = f;
+                    fechaSelect.appendChild(option);
+                });
+
+                function renderMarkers(filtro) {
+                    markers.forEach(m => map.removeLayer(m));
+                    markers = [];
+
+                    data.forEach(row => {
+                        const labelFecha = `${row.ID} - ${row.Fecha}`;
+                        if (!filtro || filtro === labelFecha) {
+                            const marker = L.marker([parseFloat(row.latitud), parseFloat(row.longitud)])
+                                .addTo(map)
+                                .bindPopup(
+                                    `<b>${row.Local} vs ${row.Visitante}</b><br>${labelFecha}<br>
+                                     <a href="https://www.google.com/maps?q=${row.latitud},${row.longitud}" target="_blank">
+                                        Ver en Google Maps
+                                     </a>`
+                                );
+                            markers.push(marker);
+                        }
+                    });
+                }
+
+                fechaSelect.addEventListener("change", function() {
+                    renderMarkers(this.value);
+                });
+
+                renderMarkers("");
             }
         });
-    });
-</script>
-
+    </script>
 </body>
 </html>
