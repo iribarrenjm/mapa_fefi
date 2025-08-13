@@ -2,104 +2,111 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Fixture Clausura Fefi 2025 - Villa Sahores</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fixture Clausura Fefi 2025 - Villa Sahores</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-  body { margin: 0; font-family: Arial, sans-serif; }
-  header {
-    background: #333;
-    color: white;
-    padding: 10px;
-    text-align: center;
-    font-size: 18px;
-  }
-  #controls {
-    padding: 10px;
-    background: #f0f0f0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  select {
-    padding: 5px;
-    font-size: 14px;
-  }
-  #map { height: calc(100vh - 100px); }
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    header {
+        background-color: #004080;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-size: 1.5em;
+    }
+    #controls {
+        padding: 10px;
+        background-color: #f0f0f0;
+    }
+    #map {
+        flex: 1;
+    }
+    select {
+        padding: 5px;
+        font-size: 1em;
+        max-width: 100%;
+    }
 </style>
 </head>
 <body>
 
 <header>Fixture Clausura Fefi 2025 - Villa Sahores</header>
+
 <div id="controls">
-  <label for="dateFilter">Filtrar por fecha:</label>
-  <select id="dateFilter">
-    <option value="all">Todas</option>
-  </select>
+    <label for="dateFilter">Filtrar por Fecha N°: </label>
+    <select id="dateFilter">
+        <option value="">Todas</option>
+    </select>
 </div>
+
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script>
-const map = L.map('map').setView([-34.6, -58.45], 12);
+    const map = L.map('map').setView([-34.6, -58.45], 12);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-let markers = [];
-let allData = [];
+    let markers = [];
+    let fechas = new Set();
 
-// Cargar CSV
-Papa.parse("clausura.csv", {
-  download: true,
-  header: true,
-  complete: function(results) {
-    allData = results.data;
-    populateDateFilter();
-    plotMarkers("all");
-  }
-});
+    Papa.parse('clausura.csv', {
+        download: true,
+        header: true,
+        complete: function(results) {
+            results.data.forEach(row => {
+                if(row.latitud && row.longitud){
+                    const idFecha = row.ID; // Usamos el ID como número de fecha
+                    fechas.add(idFecha);
 
-// Poblar el filtro de fechas
-function populateDateFilter() {
-  let dates = [...new Set(allData.map(row => row.Fecha.trim()))];
-  dates.sort((a,b) => {
-    let [da,ma,ya] = a.split("/").map(Number);
-    let [db,mb,yb] = b.split("/").map(Number);
-    return new Date(ya, ma-1, da) - new Date(yb, mb-1, db);
-  });
-  
-  const select = document.getElementById("dateFilter");
-  dates.forEach(date => {
-    let option = document.createElement("option");
-    option.value = date;
-    option.textContent = date;
-    select.appendChild(option);
-  });
+                    const marker = L.marker([parseFloat(row.latitud), parseFloat(row.longitud)]).bindPopup(`
+                        <b>Fecha N°${idFecha}</b><br>
+                        ${row.Local} vs ${row.Visitante}<br>
+                        ${row.Fecha}<br>
+                        <a href="https://www.google.com/maps?q=${row.latitud},${row.longitud}" target="_blank">
+                            <button>Ver en Google Maps</button>
+                        </a>
+                    `);
+                    marker.options.fechaId = idFecha;
+                    markers.push(marker);
+                }
+            });
 
-  select.addEventListener("change", () => {
-    plotMarkers(select.value);
-  });
-}
+            // Ordenar fechas numéricamente
+            const sortedFechas = Array.from(fechas).sort((a, b) => parseInt(a) - parseInt(b));
+            const select = document.getElementById('dateFilter');
+            sortedFechas.forEach(f => {
+                const option = document.createElement('option');
+                option.value = f;
+                option.textContent = f;
+                select.appendChild(option);
+            });
 
-// Mostrar marcadores filtrados
-function plotMarkers(filterDate) {
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+            // Agregar todos los marcadores al mapa
+            markers.forEach(m => m.addTo(map));
+        }
+    });
 
-  allData.forEach(row => {
-    if (!row.Latitud || !row.Longitud) return;
-    if (filterDate !== "all" && row.Fecha.trim() !== filterDate) return;
-
-    const marker = L.marker([parseFloat(row.Latitud), parseFloat(row.Longitud)]).addTo(map);
-    let popupContent = `<b>${row.Club}</b><br>Fecha: ${row.Fecha}<br>`;
-    popupContent += `<a href="https://www.google.com/maps?q=${row.Latitud},${row.Longitud}" target="_blank">Abrir en Google Maps</a>`;
-    marker.bindPopup(popupContent);
-    markers.push(marker);
-  });
-}
+    document.getElementById('dateFilter').addEventListener('change', function() {
+        const value = this.value;
+        markers.forEach(m => {
+            if(value === "" || m.options.fechaId == value){
+                m.addTo(map);
+            } else {
+                map.removeLayer(m);
+            }
+        });
+    });
 </script>
+
 </body>
 </html>
