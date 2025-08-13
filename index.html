@@ -2,155 +2,420 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mapa de Clubes - FEFI 2025</title>
+  <title>Fixture CLUB SAHORES - Fefi 2025 Clausura</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    html, body {
-      height: 100%;
+    * {
+      box-sizing: border-box;
+    }
+    body {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      color: #333;
+      min-height: 100vh;
     }
-    #map {
-      height: 80vh;
-      width: 100%;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      border: 2px solid #ffcc00;
+    }
+    h1 {
+      color: #1a2a6c;
+      margin: 0 0 15px 0;
+      font-size: 1.8rem;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .club-name {
+      color: #b21f1f;
+      font-weight: bold;
     }
     .controls {
-      padding: 10px;
-      background: #f8f8f8;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 8px;
+      padding: 15px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    label, select {
+    .filter-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 400px;
+    }
+    label {
+      font-weight: bold;
+      color: #1a2a6c;
+      margin-bottom: 5px;
+    }
+    select {
+      padding: 10px 15px;
+      border: 2px solid #1a2a6c;
+      border-radius: 5px;
+      background-color: white;
       font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
     }
-    @media (max-width: 600px) {
-      .controls {
-        padding: 8px;
+    select:hover {
+      background-color: #f0f8ff;
+      border-color: #b21f1f;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .stat-card {
+      background: linear-gradient(to right, #1a2a6c, #3a5fc5);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 140px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    #map {
+      height: 60vh;
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin-top: 20px;
+      z-index: 1;
+      border: 2px solid #ffcc00;
+    }
+    .legend {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      border-radius: 50%;
+    }
+    .match-info {
+      padding: 10px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      margin-top: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .match-title {
+      font-weight: bold;
+      color: #1a2a6c;
+      margin-bottom: 5px;
+    }
+    .match-teams {
+      font-size: 1.1rem;
+      margin: 5px 0;
+    }
+    .home-team {
+      color: #1a2a6c;
+      font-weight: bold;
+    }
+    .away-team {
+      color: #b21f1f;
+      font-weight: bold;
+    }
+    .btn-gmaps {
+      display: inline-block;
+      background: #1a73e8;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 10px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .btn-gmaps:hover {
+      background: #0d62d9;
+    }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      color: white;
+      font-size: 0.9rem;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.5rem;
       }
-      label, select {
-        font-size: 0.9rem;
+      .stats {
+        flex-direction: column;
+        align-items: center;
+      }
+      .stat-card {
+        width: 100%;
+      }
+      .controls {
+        padding: 10px;
+      }
+    }
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.3rem;
+      }
+      select {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <h1>Fixture <span class="club-name">CLUB SAHORES</span> - Fefi 2025 Clausura</h1>
+      <div class="controls">
+        <div class="filter-container">
+          <label for="fechaFiltro">Filtrar por fecha:</label>
+          <select id="fechaFiltro">
+            <option value="all">Todas las fechas</option>
+            <!-- Las opciones se generarán dinámicamente -->
+          </select>
+        </div>
+        <div class="stats">
+          <div class="stat-card">
+            <div>Partidos</div>
+            <div class="stat-value" id="totalMatches">15</div>
+          </div>
+          <div class="stat-card">
+            <div>Local</div>
+            <div class="stat-value" id="homeMatches">8</div>
+          </div>
+          <div class="stat-card">
+            <div>Visitante</div>
+            <div class="stat-value" id="awayMatches">7</div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-<div class="controls">
-  <label for="fechaFiltro">Filtrar por fecha:</label>
-  <select id="fechaFiltro">
-    <option value="">Todas</option>
-  </select>
-</div>
+    <div id="map"></div>
+    
+    <div class="match-info">
+      <div class="match-title">Próximo Partido: ID 1 - 16/8/2025</div>
+      <div class="match-teams"><span class="home-team">VICENTE LOPEZ</span> vs <span class="away-team">CLUB SAHORES</span></div>
+      <a href="#" class="btn-gmaps">Ver en Google Maps</a>
+    </div>
+    
+    <footer>
+      Visualizador de Fixture - Club Sahores | Fefi 2025 Clausura
+    </footer>
+  </div>
 
-<div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Datos simulados del CSV (para evitar problemas de CORS)
+    const matches = [
+      {ID: "1", Fecha: "16/8/2025", Local: "VICENTE LOPEZ", Visitante: "CLUB SAHORES", latitud: "-34.70107", longitud: "-58.473"},
+      {ID: "2", Fecha: "23/8/2025", Local: "CLUB SAHORES", Visitante: "FERRO C.O.", latitud: "-34.6016603", longitud: "-58.481546"},
+      {ID: "3", Fecha: "30/8/2025", Local: "TORINO", Visitante: "CLUB SAHORES", latitud: "-34.66099", longitud: "-58.47712"},
+      {ID: "4", Fecha: "6/9/2025", Local: "GIUFFRA", Visitante: "CLUB SAHORES", latitud: "-34.6225", longitud: "-58.37421"},
+      {ID: "5", Fecha: "13/9/2025", Local: "CLUB SAHORES", Visitante: "MENDEVILLE", latitud: "-34.6016603", longitud: "-58.481546"},
+      {ID: "6", Fecha: "20/9/2025", Local: "EL TREBOL F. C.", Visitante: "CLUB SAHORES", latitud: "-34.58344", longitud: "-58.48094"},
+      {ID: "7", Fecha: "27/9/2025", Local: "CLUB SAHORES", Visitante: "MITRE L.M.R.", latitud: "-34.6016603", longitud: "-58.481546"},
+      {ID: "8", Fecha: "4/10/2025", Local: "LOS LEONES DE VILLA SOLDATI", Visitante: "CLUB SAHORES", latitud: "-34.66276", longitud: "-58.43744"},
+      {ID: "9", Fecha: "11/10/2025", Local: "CLUB SAHORES", Visitante: "ESTRELLA", latitud: "-34.6016603", longitud: "-58.481546"},
+      {ID: "10", Fecha: "18/10/2025", Local: "FATIMA", Visitante: "CLUB SAHORES", latitud: "-34.66694", longitud: "-58.53586"},
+      {ID: "11", Fecha: "25/10/2025", Local: "CLUB SAHORES", Visitante: "AŃASCO", latitud: "-34.6016603", longitud: "-58.481546"},
+      {ID: "12", Fecha: "1/11/2025", Local: "PACIFICO MAR PLAST", Visitante: "CLUB SAHORES", latitud: "-34.61082", longitud: "-58.49781"},
+      {ID: "13", Fecha: "8/11/2025", Local: "CLUB SAHORES", Visitante: "CLUB ATLETICO PIRAŃA", latitud: "-34.6016603", longitud: "-58.481546"},
+      {ID: "14", Fecha: "15/11/2025", Local: "JOVENES DEPORTISTAS", Visitante: "CLUB SAHORES", latitud: "-34.68508", longitud: "-58.46308"},
+      {ID: "15", Fecha: "22/11/2025", Local: "CLUB SAHORES", Visitante: "HOMERO", latitud: "-34.6016603", longitud: "-58.481546"}
+    ];
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+    // Inicializar el mapa
+    const map = L.map('map').setView([-34.60, -58.45], 11);
+    
+    // Añadir capa de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-<script>
-const csvFile = 'clausura.csv';
-let mapa = L.map('map').setView([-34.6037, -58.3816], 10);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(mapa);
+    // Crear iconos personalizados
+    const homeIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/447/447031.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
 
-let marcadores = [];
-let fechasUnicas = new Set();
-let datosCSV = [];
-let campoLat = null, campoLon = null, campoFecha = null;
+    const awayIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
 
-function normalizarFecha(fechaStr) {
-  if (!fechaStr) return null;
-  fechaStr = fechaStr.trim();
-  let dmY = fechaStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (dmY) {
-    let [_, d, m, y] = dmY;
-    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  let yMd = fechaStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (yMd) {
-    let [_, y, m, d] = yMd;
-    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  let dObj = new Date(fechaStr);
-  if (!isNaN(dObj.getTime())) {
-    let y = dObj.getFullYear();
-    let m = String(dObj.getMonth() + 1).padStart(2, '0');
-    let d = String(dObj.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-  return fechaStr;
-}
+    // Contadores para estadísticas
+    let homeMatches = 0;
+    let awayMatches = 0;
 
-Papa.parse(csvFile, {
-  download: true,
-  header: true,
-  complete: function(results) {
-    datosCSV = results.data.filter(row => Object.keys(row).length > 1);
-    let headers = Object.keys(datosCSV[0]);
-    campoLat = headers.find(h => h.toLowerCase().includes('lat'));
-    campoLon = headers.find(h => h.toLowerCase().includes('lon') || h.toLowerCase().includes('lng') || h.toLowerCase().includes('long'));
-    campoFecha = headers.find(h => h.toLowerCase().includes('fecha') || h.toLowerCase().includes('date'));
+    // Crear un grupo para los marcadores
+    const markerGroup = L.layerGroup().addTo(map);
 
-    if (campoFecha) {
-      datosCSV.forEach(row => {
-        let fechaNorm = normalizarFecha(row[campoFecha]);
-        if (fechaNorm) {
-          row[campoFecha] = fechaNorm;
-          fechasUnicas.add(fechaNorm);
+    // Función para agregar marcadores
+    function addMarkers() {
+      markerGroup.clearLayers();
+      
+      matches.forEach(match => {
+        const isHome = match.Local === "CLUB SAHORES";
+        const isAway = match.Visitante === "CLUB SAHORES";
+        
+        if (isHome) homeMatches++;
+        if (isAway) awayMatches++;
+        
+        const icon = isHome ? homeIcon : awayIcon;
+        const markerColor = isHome ? '#1a73e8' : '#ea4335';
+        
+        const marker = L.marker([parseFloat(match.latitud), parseFloat(match.longitud)], {icon})
+          .bindPopup(`
+            <div style="text-align: center; padding: 10px;">
+              <h3 style="margin: 0 0 10px; color: ${markerColor};">ID ${match.ID} - ${match.Fecha}</h3>
+              <p style="margin: 5px 0;"><b>Local:</b> ${match.Local}</p>
+              <p style="margin: 5px 0;"><b>Visitante:</b> ${match.Visitante}</p>
+              <a href="https://www.google.com/maps?q=${match.latitud},${match.longitud}" 
+                 target="_blank" 
+                 style="display: inline-block; margin-top: 10px; padding: 8px 12px; background: ${markerColor}; color: white; text-decoration: none; border-radius: 4px;">
+                Ver en Google Maps
+              </a>
+            </div>
+          `);
+        
+        markerGroup.addLayer(marker);
+      });
+      
+      // Actualizar estadísticas
+      document.getElementById('homeMatches').textContent = homeMatches;
+      document.getElementById('awayMatches').textContent = awayMatches;
+    }
+
+    // Función para llenar el selector de fechas
+    function fillDateSelector() {
+      const selector = document.getElementById('fechaFiltro');
+      
+      matches.forEach(match => {
+        const option = document.createElement('option');
+        option.value = match.ID;
+        option.textContent = `ID ${match.ID} - ${match.Fecha}`;
+        selector.appendChild(option);
+      });
+    }
+
+    // Función para mostrar información del partido seleccionado
+    function showMatchInfo(matchId) {
+      const match = matches.find(m => m.ID === matchId) || matches[0];
+      const matchInfo = document.querySelector('.match-info');
+      
+      matchInfo.innerHTML = `
+        <div class="match-title">Partido ID ${match.ID} - ${match.Fecha}</div>
+        <div class="match-teams">
+          <span class="home-team">${match.Local}</span> vs 
+          <span class="away-team">${match.Visitante}</span>
+        </div>
+        <a href="https://www.google.com/mports?q=${match.latitud},${match.longitud}" 
+           target="_blank" 
+           class="btn-gmaps">
+          Ver en Google Maps
+        </a>
+      `;
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+      addMarkers();
+      fillDateSelector();
+      showMatchInfo('1');
+      
+      // Evento para el selector de fechas
+      document.getElementById('fechaFiltro').addEventListener('change', (e) => {
+        if (e.target.value === 'all') {
+          markerGroup.addTo(map);
+          map.setView([-34.60, -58.45], 11);
+          showMatchInfo('1');
+        } else {
+          const match = matches.find(m => m.ID === e.target.value);
+          if (match) {
+            markerGroup.clearLayers();
+            const icon = match.Local === "CLUB SAHORES" ? homeIcon : awayIcon;
+            const marker = L.marker([parseFloat(match.latitud), parseFloat(match.longitud)], {icon})
+              .addTo(map)
+              .bindPopup(`
+                <div style="text-align: center; padding: 10px;">
+                  <h3 style="margin: 0 0 10px;">ID ${match.ID} - ${match.Fecha}</h3>
+                  <p style="margin: 5px 0;"><b>Local:</b> ${match.Local}</p>
+                  <p style="margin: 5px 0;"><b>Visitante:</b> ${match.Visitante}</p>
+                  <a href="https://www.google.com/maps?q=${match.latitud},${match.longitud}" 
+                     target="_blank" 
+                     style="display: inline-block; margin-top: 10px; padding: 8px 12px; background: #1a73e8; color: white; text-decoration: none; border-radius: 4px;">
+                    Ver en Google Maps
+                  </a>
+                </div>
+              `)
+              .openPopup();
+            map.setView([parseFloat(match.latitud), parseFloat(match.longitud)], 14);
+            showMatchInfo(match.ID);
+          }
         }
       });
+    });
 
-      let fechasOrdenadas = Array.from(fechasUnicas).sort((a, b) => new Date(a) - new Date(b));
-      let select = document.getElementById('fechaFiltro');
-      fechasOrdenadas.forEach(fecha => {
-        let opt = document.createElement('option');
-        opt.value = fecha;
-        opt.textContent = fecha;
-        select.appendChild(opt);
-      });
-    }
-
-    mostrarMarcadores();
-  }
-});
-
-function mostrarMarcadores(fechaFiltro = "") {
-  marcadores.forEach(m => mapa.removeLayer(m));
-  marcadores = [];
-
-  let bounds = [];
-
-  datosCSV.forEach(row => {
-    let lat = parseFloat(row[campoLat]?.replace(",", ".").replace("\", ""));
-    let lon = parseFloat(row[campoLon]?.replace(",", ".").replace("\", ""));
-    if (!isNaN(lat) && !isNaN(lon)) {
-      if (!fechaFiltro || (campoFecha && row[campoFecha] === fechaFiltro)) {
-        let fechaTxt = campoFecha && row[campoFecha] ? `<b>Fecha:</b> ${row[campoFecha]}<br>` : '';
-        let local = row['Local']?.trim() || 'Local desconocido';
-        let visitante = row['Visitante']?.trim() || 'Visitante desconocido';
-        let equipos = `<b>Local:</b> ${local}<br><b>Visitante:</b> ${visitante}<br>`;
-        let linkGoogle = `<a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">Ver en Google Maps</a>`;
-        let popup = `${fechaTxt}${equipos}${linkGoogle}`;
-        let marcador = L.marker([lat, lon]).bindPopup(popup).addTo(mapa);
-        marcadores.push(marcador);
-        bounds.push([lat, lon]);
-      }
-    }
-  });
-
-  if (bounds.length) {
-    mapa.fitBounds(bounds, { padding: [30, 30] });
-  }
-}
-
-document.getElementById('fechaFiltro').addEventListener('change', function() {
-  mostrarMarcadores(this.value);
-});
-</script>
-
+    // Añadir leyenda
+    const legend = L.control({position: 'bottomleft'});
+    legend.onAdd = function() {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = `
+        <h4>Leyenda</h4>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #1a73e8;"></div>
+          <span>Partido de Local</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ea4335;"></div>
+          <span>Partido de Visitante</span>
+        </div>
+      `;
+      return div;
+    };
+    legend.addTo(map);
+  </script>
 </body>
 </html>
