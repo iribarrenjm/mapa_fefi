@@ -114,14 +114,17 @@ function mostrarMarcadores(fechaFiltro = "") {
   let bounds = [];
 
   datosCSV.forEach(row => {
-    let lat = parseFloat(row[campoLat]?.replace(",", "."));
-    let lon = parseFloat(row[campoLon]?.replace(",", "."));
+  datosCSV.forEach(row => {
+    let lat = parseFloat(row[campoLat]?.replace(",", ".").replace("\", ""));
+    let lon = parseFloat(row[campoLon]?.replace(",", ".").replace("\", ""));
     if (!isNaN(lat) && !isNaN(lon)) {
       if (!fechaFiltro || (campoFecha && row[campoFecha] === fechaFiltro)) {
-        let nombre = row.Nombre || 'Ubicación';
-        let fechaTxt = campoFecha && row[campoFecha] ? `<br>Fecha: ${row[campoFecha]}` : '';
-        let linkGoogle = `<br><a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">Ver en Google Maps</a>`;
-        let popup = `<b>${nombre}</b>${fechaTxt}${linkGoogle}`;
+        let fechaTxt = campoFecha && row[campoFecha] ? `<b>Fecha:</b> ${row[campoFecha]}<br>` : '';
+        let local = row['Local']?.trim() || 'Local desconocido';
+        let visitante = row['Visitante']?.trim() || 'Visitante desconocido';
+        let equipos = `<b>Local:</b> ${local}<br><b>Visitante:</b> ${visitante}<br>`;
+        let linkGoogle = `<a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">Ver en Google Maps</a>`;
+        let popup = `${fechaTxt}${equipos}${linkGoogle}`;
         let marcador = L.marker([lat, lon]).bindPopup(popup).addTo(mapa);
         marcadores.push(marcador);
         bounds.push([lat, lon]);
