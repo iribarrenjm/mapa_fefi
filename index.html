@@ -19,23 +19,24 @@
       color: #f0f0f0;
       min-height: 100vh;
       line-height: 1.6;
+      padding: 20px;
     }
     
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      border: 2px solid #f9c80e;
     }
     
     header {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
+      background: rgba(10, 61, 29, 0.9);
       padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
       text-align: center;
-      border: 2px solid #f9c80e;
-      backdrop-filter: blur(10px);
+      border-bottom: 2px solid #f9c80e;
     }
     
     .club-header {
@@ -56,6 +57,7 @@
       justify-content: center;
       border: 3px solid #f9c80e;
       box-shadow: 0 0 15px rgba(249, 200, 14, 0.5);
+      animation: pulse 3s infinite;
     }
     
     .club-logo i {
@@ -86,7 +88,7 @@
       gap: 15px;
       align-items: center;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      margin-top: 20px;
+      margin: 20px;
     }
     
     .filter-container {
@@ -101,6 +103,9 @@
       color: #f9c80e;
       margin-bottom: 8px;
       font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     
     select {
@@ -113,6 +118,11 @@
       cursor: pointer;
       transition: all 0.3s;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f9c80e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1em;
     }
     
     select:hover {
@@ -125,43 +135,12 @@
       color: white;
     }
     
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      margin-top: 15px;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    
-    .stat-card {
-      background: linear-gradient(to right, #0a3d1d, #1e8449);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 12px;
-      text-align: center;
-      min-width: 160px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-      border: 1px solid #f9c80e;
-      transition: transform 0.3s;
-    }
-    
-    .stat-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .stat-value {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #f9c80e;
-    }
-    
     #map {
       height: 60vh;
-      width: 100%;
+      width: calc(100% - 40px);
       border-radius: 15px;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-      margin-top: 25px;
+      margin: 20px;
       z-index: 1;
       border: 3px solid #f9c80e;
     }
@@ -171,7 +150,7 @@
       padding: 15px;
       border-radius: 8px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      margin-top: 15px;
+      margin: 0 20px 20px;
       font-size: 1rem;
       border: 1px solid #f9c80e;
     }
@@ -190,15 +169,53 @@
       box-shadow: 0 0 8px rgba(0,0,0,0.3);
     }
     
-    .match-info {
+    /* Contenedor de información dinámica */
+    .info-container {
       padding: 20px;
       text-align: center;
       background: rgba(0, 0, 0, 0.3);
       border-radius: 15px;
-      margin-top: 25px;
+      margin: 20px;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       backdrop-filter: blur(5px);
       border: 2px solid #1e8449;
+    }
+    
+    /* Modo estadísticas (todas las fechas) */
+    .stats-mode {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(to right, #0a3d1d, #1e8449);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      text-align: center;
+      min-width: 160px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      border: 1px solid #f9c80e;
+      transition: transform 0.3s;
+      flex: 1;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #f9c80e;
+      margin-top: 5px;
+    }
+    
+    /* Modo detalle partido (fecha específica) */
+    .match-mode {
+      display: none;
     }
     
     .match-title {
@@ -263,37 +280,63 @@
       margin-right: 8px;
     }
     
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #f9c80e;
+      font-size: 1.2rem;
+    }
+    
+    .loading i {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      display: block;
+      animation: spin 2s linear infinite;
+    }
+    
     footer {
       text-align: center;
-      margin-top: 30px;
+      margin-top: 20px;
       color: #f9c80e;
       font-size: 1rem;
       padding: 20px;
       background: rgba(0, 0, 0, 0.3);
-      border-radius: 12px;
-      border: 1px solid #1e8449;
     }
     
-    /* Responsive */
+    /* Para móviles: posición fija del info-container */
     @media (max-width: 768px) {
+      .info-container {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        z-index: 1000;
+        margin: 0;
+      }
+      
+      #map {
+        margin-bottom: 150px;
+      }
+      
       h1 {
         font-size: 1.8rem;
       }
+      
       .club-name {
         font-size: 1.5rem;
       }
-      .stats {
-        flex-direction: column;
-        align-items: center;
-      }
-      .stat-card {
-        width: 100%;
-      }
+      
       .controls {
         padding: 15px;
       }
-      .match-teams {
-        flex-direction: column;
+      
+      .club-logo {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .club-logo i {
+        font-size: 30px;
       }
     }
     
@@ -301,31 +344,38 @@
       h1 {
         font-size: 1.5rem;
       }
+      
       .club-name {
         font-size: 1.3rem;
       }
+      
       select {
-        width: 100%;
         font-size: 1rem;
       }
-      .club-logo {
-        width: 60px;
-        height: 60px;
+      
+      .info-container {
+        padding: 15px;
       }
-      .club-logo i {
-        font-size: 30px;
+      
+      .stat-card {
+        min-width: 100%;
+      }
+      
+      .match-teams {
+        flex-direction: column;
       }
     }
     
     /* Animaciones */
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+      0% { transform: scale(1); box-shadow: 0 0 15px rgba(249, 200, 14, 0.5); }
+      50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(249, 200, 14, 0.8); }
+      100% { transform: scale(1); box-shadow: 0 0 15px rgba(249, 200, 14, 0.5); }
     }
     
-    .pulse {
-      animation: pulse 2s infinite;
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -333,47 +383,69 @@
   <div class="container">
     <header>
       <div class="club-header">
-        <div class="club-logo pulse">
+        <div class="club-logo">
           <i class="fas fa-futbol"></i>
         </div>
         <h1>Fixture <span class="club-name">CLUB SAHORES</span><br>Fefi 2025 Clausura</h1>
       </div>
-      
-      <div class="controls">
-        <div class="filter-container">
-          <label for="fechaFiltro"><i class="fas fa-filter"></i> Filtrar por fecha:</label>
-          <select id="fechaFiltro">
-            <option value="all">Todas las fechas</option>
-            <!-- Las opciones se generarán dinámicamente -->
-          </select>
-        </div>
-        <div class="stats">
-          <div class="stat-card">
-            <div><i class="fas fa-calendar-alt"></i> Partidos</div>
-            <div class="stat-value" id="totalMatches">15</div>
-          </div>
-          <div class="stat-card">
-            <div><i class="fas fa-home"></i> Local</div>
-            <div class="stat-value" id="homeMatches">8</div>
-          </div>
-          <div class="stat-card">
-            <div><i class="fas fa-bus"></i> Visitante</div>
-            <div class="stat-value" id="awayMatches">7</div>
-          </div>
-        </div>
-      </div>
     </header>
+
+    <div class="controls">
+      <div class="filter-container">
+        <label for="fechaFiltro"><i class="fas fa-calendar-day"></i> Filtrar por fecha:</label>
+        <select id="fechaFiltro">
+          <option value="all">Todas las fechas</option>
+          <!-- Las opciones se generarán dinámicamente -->
+        </select>
+      </div>
+    </div>
 
     <div id="map"></div>
     
-    <div class="match-info">
-      <div class="match-title">Próximo Partido: ID 1 - 16/8/2025</div>
-      <div class="match-teams">
-        <div class="home-team">VICENTE LOPEZ</div>
-        <div class="vs">VS</div>
-        <div class="away-team">CLUB SAHORES</div>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #1e8449;"></div>
+        <span>Partido de Local</span>
       </div>
-      <a href="#" class="btn-gmaps"><i class="fas fa-map-marked-alt"></i> Ver en Google Maps</a>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #f9c80e;"></div>
+        <span>Partido de Visitante</span>
+      </div>
+    </div>
+    
+    <!-- Contenedor de información dinámica -->
+    <div class="info-container">
+      <!-- Modo estadísticas (todas las fechas) -->
+      <div id="statsMode" class="stats-mode">
+        <div class="stat-card">
+          <div><i class="fas fa-futbol"></i> Partidos</div>
+          <div class="stat-value" id="totalMatches">0</div>
+        </div>
+        <div class="stat-card">
+          <div><i class="fas fa-home"></i> Local</div>
+          <div class="stat-value" id="homeMatches">0</div>
+        </div>
+        <div class="stat-card">
+          <div><i class="fas fa-bus"></i> Visitante</div>
+          <div class="stat-value" id="awayMatches">0</div>
+        </div>
+      </div>
+      
+      <!-- Modo detalle partido (fecha específica) -->
+      <div id="matchMode" class="match-mode">
+        <div class="match-title">Partido Seleccionado</div>
+        <div class="match-teams">
+          <div class="home-team" id="homeTeam">Cargando...</div>
+          <div class="vs">VS</div>
+          <div class="away-team" id="awayTeam">Cargando...</div>
+        </div>
+        <a href="#" class="btn-gmaps" id="gmapsBtn"><i class="fas fa-map-marked-alt"></i> Ver en Google Maps</a>
+      </div>
+    </div>
+    
+    <div id="loadingSection" class="loading">
+      <i class="fas fa-spinner"></i>
+      <p>Cargando datos del fixture...</p>
     </div>
     
     <footer>
@@ -512,40 +584,46 @@
 
     // Función para mostrar información del partido seleccionado
     function showMatchInfo(matchId) {
-      const match = matches.find(m => m.ID === matchId) || matches[0];
-      const matchInfo = document.querySelector('.match-info');
+      const match = matches.find(m => m.ID === matchId);
       
-      matchInfo.innerHTML = `
-        <div class="match-title">Partido ID ${match.ID} - ${match.Fecha}</div>
-        <div class="match-teams">
-          <div class="home-team">${match.Local}</div>
-          <div class="vs">VS</div>
-          <div class="away-team">${match.Visitante}</div>
-        </div>
-        <a href="https://www.google.com/maps?q=${match.latitud},${match.longitud}" 
-           target="_blank" 
-           class="btn-gmaps">
-          <i class="fas fa-map-marked-alt"></i> Ver en Google Maps
-        </a>
-      `;
+      if (match) {
+        document.getElementById('homeTeam').textContent = match.Local;
+        document.getElementById('awayTeam').textContent = match.Visitante;
+        document.getElementById('gmapsBtn').href = `https://www.google.com/maps?q=${match.latitud},${match.longitud}`;
+      }
+    }
+
+    // Cambiar modo de visualización de información
+    function setInfoMode(mode) {
+      const statsMode = document.getElementById('statsMode');
+      const matchMode = document.getElementById('matchMode');
+      
+      if (mode === 'all') {
+        statsMode.style.display = 'flex';
+        matchMode.style.display = 'none';
+      } else {
+        statsMode.style.display = 'none';
+        matchMode.style.display = 'block';
+      }
     }
 
     // Inicializar
     document.addEventListener('DOMContentLoaded', () => {
+      // Ocultar loader
+      document.getElementById('loadingSection').style.display = 'none';
+      
       // Llenar selector de fechas
       fillDateSelector();
       
       // Mostrar todos los marcadores inicialmente
       addMarkers();
       
-      // Mostrar información del primer partido
-      showMatchInfo('1');
-      
       // Evento para el selector de fechas
       document.getElementById('fechaFiltro').addEventListener('change', (e) => {
         if (e.target.value === 'all') {
           // Mostrar todos los partidos
           addMarkers();
+          setInfoMode('all');
         } else {
           // Filtrar por ID seleccionado
           const filteredMatch = matches.filter(m => m.ID === e.target.value);
@@ -553,6 +631,7 @@
           
           // Mostrar información del partido seleccionado
           showMatchInfo(e.target.value);
+          setInfoMode('match');
         }
       });
     });
