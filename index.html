@@ -5,8 +5,6 @@
   <title>Fixture CLUB SAHORES - Fefi 2025 Clausura</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -104,7 +102,7 @@
       display: flex;
       flex-direction: column;
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
     }
     
     label {
@@ -115,6 +113,46 @@
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+    
+    .nav-controls {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    .nav-btn {
+      background: linear-gradient(to right, #0a3d1d, #1e8449);
+      color: white;
+      border: 2px solid #f9c80e;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .nav-btn:hover {
+      background: linear-gradient(to right, #1e8449, #0a3d1d);
+      transform: translateY(-2px);
+    }
+    
+    .nav-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .select-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 15px;
     }
     
     select {
@@ -132,6 +170,7 @@
       background-repeat: no-repeat;
       background-position: right 1rem center;
       background-size: 1em;
+      flex: 1;
     }
     
     select:hover {
@@ -149,20 +188,6 @@
       height: 55vh;
       width: 100%;
       z-index: 1;
-    }
-    
-    /* Estilos personalizados para los clusters */
-    .marker-cluster-custom {
-      background-color: #1e8449;
-      border: 3px solid #f9c80e;
-    }
-    .marker-cluster-custom div {
-      background-color: #1e8449;
-      color: white;
-      font-weight: bold;
-    }
-    .marker-cluster-custom span {
-      color: white;
     }
     
     /* Contenedor de información dinámica */
@@ -366,6 +391,15 @@
       .match-info-card {
         width: 100%;
       }
+      
+      .nav-controls {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .nav-btn {
+        justify-content: center;
+      }
     }
     
     @media (max-width: 480px) {
@@ -379,6 +413,10 @@
       
       select {
         font-size: 1rem;
+      }
+      
+      .select-container {
+        flex-direction: column;
       }
     }
     
@@ -405,14 +443,26 @@
       </div>
     </div>
 
-    <!-- Controles -->
+    <!-- Controles con navegación -->
     <div class="controls">
       <div class="filter-container">
         <label for="fechaFiltro"><i class="fas fa-calendar-day"></i> Filtrar por fecha:</label>
-        <select id="fechaFiltro">
-          <option value="all">Todas las fechas</option>
-          <!-- Las opciones se generarán dinámicamente -->
-        </select>
+        
+        <div class="select-container">
+          <select id="fechaFiltro">
+            <option value="all">Todas las fechas</option>
+            <!-- Las opciones se generarán dinámicamente -->
+          </select>
+        </div>
+        
+        <div class="nav-controls">
+          <button id="prevBtn" class="nav-btn" disabled>
+            <i class="fas fa-arrow-left"></i> Fecha Anterior
+          </button>
+          <button id="nextBtn" class="nav-btn">
+            Fecha Siguiente <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -470,7 +520,6 @@
   </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
   <script>
     // Datos del fixture
     const matches = [
@@ -514,29 +563,12 @@
       iconAnchor: [16, 16]
     });
 
-    // Crear cluster group con estilo personalizado
-    const markersCluster = L.markerClusterGroup({
-      iconCreateFunction: function(cluster) {
-        const childCount = cluster.getChildCount();
-        return L.divIcon({
-          html: `<div style="background-color: #1e8449; width: 40px; height: 40px; border-radius: 50%; border: 3px solid #f9c80e; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${childCount}</div>`,
-          className: 'custom-cluster-icon',
-          iconSize: [40, 40]
-        });
-      },
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true
-    });
-
-    // Función para agregar pequeña variación a las coordenadas
-    function addCoordinateVariation(coord, variation = 0.0003) {
-      return coord + (Math.random() * variation * 2 - variation);
-    }
+    // Crear un grupo para los marcadores
+    const markerGroup = L.layerGroup().addTo(map);
 
     // Función para agregar marcadores
     function addMarkers(filteredMatches = matches) {
-      markersCluster.clearLayers();
+      markerGroup.clearLayers();
       
       let bounds = [];
       let homeMatches = 0;
@@ -554,14 +586,8 @@
         const borderColor = isHome ? '#f9c80e' : '#1e8449';
         
         // Coordenadas base
-        let lat = parseFloat(match.latitud);
-        let lon = parseFloat(match.longitud);
-        
-        // Agregar pequeña variación para los partidos de local en la misma ubicación
-        if (isHome) {
-          lat = addCoordinateVariation(lat);
-          lon = addCoordinateVariation(lon);
-        }
+        const lat = parseFloat(match.latitud);
+        const lon = parseFloat(match.longitud);
         
         const marker = L.marker([lat, lon], {icon})
           .bindPopup(`
@@ -577,12 +603,9 @@
             </div>
           `);
         
-        markersCluster.addLayer(marker);
+        markerGroup.addLayer(marker);
         bounds.push([lat, lon]);
       });
-      
-      // Añadir cluster al mapa
-      map.addLayer(markersCluster);
       
       // Actualizar estadísticas
       document.getElementById('totalMatches').textContent = filteredMatches.length;
@@ -635,6 +658,19 @@
       }
     }
 
+    // Función para actualizar navegación
+    function updateNavButtons() {
+      const currentValue = document.getElementById('fechaFiltro').value;
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      // Deshabilitar botón anterior cuando estamos en la primera opción
+      prevBtn.disabled = (currentValue === 'all' || currentValue === '1');
+      
+      // Deshabilitar botón siguiente cuando estamos en la última opción
+      nextBtn.disabled = (currentValue === '15');
+    }
+
     // Inicializar
     document.addEventListener('DOMContentLoaded', () => {
       // Llenar selector de fechas
@@ -642,6 +678,9 @@
       
       // Mostrar todos los marcadores inicialmente
       addMarkers();
+      
+      // Actualizar botones de navegación
+      updateNavButtons();
       
       // Evento para el selector de fechas
       document.getElementById('fechaFiltro').addEventListener('change', (e) => {
@@ -657,6 +696,51 @@
           // Mostrar información del partido seleccionado
           showMatchInfo(e.target.value);
           setInfoMode('match');
+        }
+        
+        // Actualizar estado de los botones de navegación
+        updateNavButtons();
+      });
+      
+      // Evento para botón anterior
+      document.getElementById('prevBtn').addEventListener('click', () => {
+        const selector = document.getElementById('fechaFiltro');
+        const currentValue = selector.value;
+        
+        if (currentValue === 'all') return;
+        
+        // Calcular ID anterior
+        const currentId = parseInt(currentValue);
+        const prevId = currentId - 1;
+        
+        if (prevId >= 1) {
+          selector.value = prevId.toString();
+          selector.dispatchEvent(new Event('change'));
+        } else {
+          selector.value = 'all';
+          selector.dispatchEvent(new Event('change'));
+        }
+      });
+      
+      // Evento para botón siguiente
+      document.getElementById('nextBtn').addEventListener('click', () => {
+        const selector = document.getElementById('fechaFiltro');
+        const currentValue = selector.value;
+        
+        if (currentValue === 'all') {
+          // Ir a la primera fecha
+          selector.value = '1';
+          selector.dispatchEvent(new Event('change'));
+          return;
+        }
+        
+        // Calcular ID siguiente
+        const currentId = parseInt(currentValue);
+        const nextId = currentId + 1;
+        
+        if (nextId <= 15) {
+          selector.value = nextId.toString();
+          selector.dispatchEvent(new Event('change'));
         }
       });
     });
