@@ -5,6 +5,8 @@
   <title>Fixture CLUB SAHORES - Fefi 2025 Clausura</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -147,6 +149,20 @@
       height: 55vh;
       width: 100%;
       z-index: 1;
+    }
+    
+    /* Estilos personalizados para los clusters */
+    .marker-cluster-custom {
+      background-color: #1e8449;
+      border: 3px solid #f9c80e;
+    }
+    .marker-cluster-custom div {
+      background-color: #1e8449;
+      color: white;
+      font-weight: bold;
+    }
+    .marker-cluster-custom span {
+      color: white;
     }
     
     /* Contenedor de información dinámica */
@@ -454,6 +470,7 @@
   </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
   <script>
     // Datos del fixture
     const matches = [
@@ -482,7 +499,7 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Crear iconos personalizados con colores correctos y tamaño aumentado
+    // Crear iconos personalizados
     const homeIcon = L.divIcon({
       html: '<div style="background-color: #1e8449; width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="fas fa-home" style="color: white; font-size: 20px;"></i></div>',
       className: 'custom-div-icon',
@@ -497,22 +514,33 @@
       iconAnchor: [16, 16]
     });
 
-    // Contadores para estadísticas
-    let homeMatches = 0;
-    let awayMatches = 0;
+    // Crear cluster group con estilo personalizado
+    const markersCluster = L.markerClusterGroup({
+      iconCreateFunction: function(cluster) {
+        const childCount = cluster.getChildCount();
+        return L.divIcon({
+          html: `<div style="background-color: #1e8449; width: 40px; height: 40px; border-radius: 50%; border: 3px solid #f9c80e; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${childCount}</div>`,
+          className: 'custom-cluster-icon',
+          iconSize: [40, 40]
+        });
+      },
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true
+    });
 
-    // Crear un grupo para los marcadores
-    const markerGroup = L.layerGroup().addTo(map);
+    // Función para agregar pequeña variación a las coordenadas
+    function addCoordinateVariation(coord, variation = 0.0003) {
+      return coord + (Math.random() * variation * 2 - variation);
+    }
 
     // Función para agregar marcadores
     function addMarkers(filteredMatches = matches) {
-      markerGroup.clearLayers();
-      
-      // Reset counters
-      homeMatches = 0;
-      awayMatches = 0;
+      markersCluster.clearLayers();
       
       let bounds = [];
+      let homeMatches = 0;
+      let awayMatches = 0;
       
       filteredMatches.forEach(match => {
         const isHome = match.Local === "CLUB SAHORES";
@@ -525,9 +553,19 @@
         const markerColor = isHome ? '#1e8449' : '#f9c80e';
         const borderColor = isHome ? '#f9c80e' : '#1e8449';
         
-        const marker = L.marker([parseFloat(match.latitud), parseFloat(match.longitud)], {icon})
+        // Coordenadas base
+        let lat = parseFloat(match.latitud);
+        let lon = parseFloat(match.longitud);
+        
+        // Agregar pequeña variación para los partidos de local en la misma ubicación
+        if (isHome) {
+          lat = addCoordinateVariation(lat);
+          lon = addCoordinateVariation(lon);
+        }
+        
+        const marker = L.marker([lat, lon], {icon})
           .bindPopup(`
-            <div style="text-align: center; padding: 15px; background: linear-gradient(to right, #0a3d1d, #1e8449); border-radius: 10px; border: 2px solid ${borderColor}; color: white;">
+            <div style="text-align: center; padding: 15px; background: linear-gradient(to right, #0a3d1d, #1e8449); border-radius: 10px; border: 2px solid ${borderColor}; color: white; max-width: 300px;">
               <h3 style="margin: 0 0 10px; color: ${markerColor}; border-bottom: 1px solid ${borderColor}; padding-bottom: 8px;">Fecha ${match.ID} - ${match.Fecha}</h3>
               <p style="margin: 8px 0;"><b><i class="fas fa-home" style="color: ${isHome ? markerColor : '#aaa'}"></i> Local:</b> ${match.Local}</p>
               <p style="margin: 8px 0;"><b><i class="fas fa-bus" style="color: ${isAway ? markerColor : '#aaa'}"></i> Visitante:</b> ${match.Visitante}</p>
@@ -539,9 +577,12 @@
             </div>
           `);
         
-        markerGroup.addLayer(marker);
-        bounds.push([parseFloat(match.latitud), parseFloat(match.longitud)]);
+        markersCluster.addLayer(marker);
+        bounds.push([lat, lon]);
       });
+      
+      // Añadir cluster al mapa
+      map.addLayer(markersCluster);
       
       // Actualizar estadísticas
       document.getElementById('totalMatches').textContent = filteredMatches.length;
