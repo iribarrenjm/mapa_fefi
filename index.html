@@ -28,19 +28,20 @@
       background: rgba(255, 255, 255, 0.05);
       border-radius: 20px;
       overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
     
     /* Encabezado minimalista */
     .minimal-header {
       display: flex;
       background: rgba(10, 61, 29, 0.95);
-      padding: 25px;
+      padding: 20px;
       border-bottom: 2px solid #f9c80e;
     }
     
     .title-container {
       flex: 70%;
-      padding-right: 20px;
+      padding-right: 15px;
     }
     
     .logo-container {
@@ -51,8 +52,8 @@
     }
     
     .club-logo {
-      width: 90px;
-      height: 90px;
+      width: 80px;
+      height: 80px;
       background: #1e8449;
       border-radius: 50%;
       display: flex;
@@ -63,63 +64,57 @@
     }
     
     .club-logo i {
-      font-size: 50px;
+      font-size: 40px;
       color: #f9c80e;
     }
     
     h1 {
       color: white;
-      font-size: 1.8rem;
-      margin-bottom: 8px;
+      font-size: 1.6rem;
+      margin-bottom: 5px;
       text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }
     
     .club-name {
       color: #f9c80e;
       font-weight: bold;
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       display: block;
     }
     
     .tournament-info {
       color: #c8e6c9;
-      font-size: 1rem;
-      margin-top: 5px;
+      font-size: 0.9rem;
+      margin-top: 3px;
     }
     
     /* Controles */
     .controls {
       background: rgba(0, 0, 0, 0.25);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      align-items: center;
+      padding: 15px 20px;
       margin: 0;
     }
     
     .filter-container {
       display: flex;
       flex-direction: column;
-      width: 100%;
-      max-width: 600px;
+      gap: 12px;
     }
     
     label {
       font-weight: bold;
       color: #f9c80e;
-      margin-bottom: 8px;
-      font-size: 1.1rem;
+      font-size: 1rem;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     
-    .nav-controls {
+    .select-nav-container {
       display: flex;
-      justify-content: space-between;
+      align-items: center;
       width: 100%;
-      margin-top: 10px;
+      gap: 10px;
     }
     
     .nav-btn {
@@ -127,14 +122,15 @@
       color: white;
       border: 2px solid #f9c80e;
       border-radius: 8px;
-      padding: 12px 20px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: all 0.3s;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      font-size: 1.2rem;
     }
     
     .nav-btn:hover {
@@ -148,20 +144,13 @@
       transform: none;
     }
     
-    .select-container {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      gap: 15px;
-    }
-    
     select {
-      padding: 14px 20px;
+      padding: 12px 15px;
       border: 2px solid #1e8449;
       border-radius: 8px;
       background: rgba(10, 61, 29, 0.8);
       color: white;
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -192,12 +181,12 @@
     
     /* Contenedor de información dinámica */
     .info-container {
-      padding: 25px;
+      padding: 20px;
       text-align: center;
       background: rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(5px);
       border-top: 2px solid #1e8449;
-      min-height: 180px;
+      min-height: 170px;
     }
     
     /* Modo estadísticas (todas las fechas) */
@@ -205,7 +194,7 @@
       display: flex;
       justify-content: space-around;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 15px;
       max-width: 800px;
       margin: 0 auto;
     }
@@ -213,25 +202,25 @@
     .stat-card {
       background: linear-gradient(to right, #0a3d1d, #1e8449);
       color: white;
-      padding: 20px 25px;
-      border-radius: 12px;
+      padding: 15px 20px;
+      border-radius: 10px;
       text-align: center;
-      min-width: 180px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      min-width: 150px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       border: 1px solid #f9c80e;
       transition: transform 0.3s;
       flex: 1;
     }
     
     .stat-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-3px);
     }
     
     .stat-value {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: bold;
       color: #f9c80e;
-      margin-top: 8px;
+      margin-top: 5px;
     }
     
     /* Modo detalle partido (fecha específica) */
@@ -244,84 +233,84 @@
     .match-title {
       font-weight: bold;
       color: #f9c80e;
-      margin-bottom: 15px;
-      font-size: 1.4rem;
+      margin-bottom: 12px;
+      font-size: 1.2rem;
     }
     
     .match-details {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 25px;
+      gap: 12px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
     
     .match-info-card {
       background: rgba(30, 132, 73, 0.3);
-      border-radius: 10px;
-      padding: 15px;
+      border-radius: 8px;
+      padding: 12px;
       flex: 1;
-      min-width: 200px;
+      min-width: 180px;
       border: 1px solid #f9c80e;
     }
     
     .match-info-card h3 {
       color: #f9c80e;
-      margin-bottom: 10px;
-      font-size: 1.1rem;
+      margin-bottom: 8px;
+      font-size: 1rem;
     }
     
     .match-teams {
-      font-size: 1.5rem;
-      margin: 15px 0;
+      font-size: 1.3rem;
+      margin: 12px 0;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
     
     .home-team {
       color: white;
       font-weight: bold;
       background: rgba(30, 132, 73, 0.7);
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 8px 15px;
+      border-radius: 6px;
     }
     
     .away-team {
       color: white;
       font-weight: bold;
       background: rgba(10, 61, 29, 0.7);
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 8px 15px;
+      border-radius: 6px;
     }
     
     .vs {
       color: #f9c80e;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
     
     .btn-gmaps {
       display: inline-block;
       background: linear-gradient(to right, #0a3d1d, #1e8449);
       color: white;
-      padding: 14px 30px;
+      padding: 12px 25px;
       border-radius: 8px;
       text-decoration: none;
-      margin-top: 15px;
+      margin-top: 12px;
       font-weight: bold;
       transition: all 0.3s;
       border: 2px solid #f9c80e;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      font-size: 1.1rem;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      font-size: 1rem;
     }
     
     .btn-gmaps:hover {
       background: linear-gradient(to right, #1e8449, #0a3d1d);
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
     
     .btn-gmaps i {
@@ -330,10 +319,10 @@
     
     footer {
       text-align: center;
-      padding: 20px;
+      padding: 15px;
       background: rgba(0, 0, 0, 0.4);
       color: #c8e6c9;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
     
     /* Para móviles */
@@ -341,34 +330,34 @@
       .minimal-header {
         flex-direction: column;
         text-align: center;
-        padding: 20px 15px;
+        padding: 15px;
       }
       
       .title-container {
         padding-right: 0;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
       }
       
       .club-logo {
-        width: 70px;
-        height: 70px;
+        width: 60px;
+        height: 60px;
         margin: 0 auto;
       }
       
       .club-logo i {
-        font-size: 35px;
+        font-size: 30px;
       }
       
       h1 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
       }
       
       .club-name {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
       }
       
       .controls {
-        padding: 15px;
+        padding: 12px;
       }
       
       #map {
@@ -377,11 +366,11 @@
       
       .stat-card {
         min-width: 100%;
-        padding: 15px;
+        padding: 12px;
       }
       
       .stat-value {
-        font-size: 2rem;
+        font-size: 1.8rem;
       }
       
       .match-details {
@@ -392,13 +381,14 @@
         width: 100%;
       }
       
-      .nav-controls {
-        flex-direction: column;
-        gap: 10px;
+      .select-nav-container {
+        gap: 8px;
       }
       
       .nav-btn {
-        justify-content: center;
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
       }
     }
     
@@ -412,11 +402,13 @@
       }
       
       select {
-        font-size: 1rem;
+        font-size: 0.9rem;
+        padding: 10px 12px;
       }
       
-      .select-container {
-        flex-direction: column;
+      .btn-gmaps {
+        padding: 10px 20px;
+        font-size: 0.9rem;
       }
     }
     
@@ -448,19 +440,18 @@
       <div class="filter-container">
         <label for="fechaFiltro"><i class="fas fa-calendar-day"></i> Filtrar por fecha:</label>
         
-        <div class="select-container">
+        <div class="select-nav-container">
+          <button id="prevBtn" class="nav-btn" title="Fecha anterior" disabled>
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          
           <select id="fechaFiltro">
             <option value="all">Todas las fechas</option>
             <!-- Las opciones se generarán dinámicamente -->
           </select>
-        </div>
-        
-        <div class="nav-controls">
-          <button id="prevBtn" class="nav-btn" disabled>
-            <i class="fas fa-arrow-left"></i> Fecha Anterior
-          </button>
-          <button id="nextBtn" class="nav-btn">
-            Fecha Siguiente <i class="fas fa-arrow-right"></i>
+          
+          <button id="nextBtn" class="nav-btn" title="Fecha siguiente">
+            <i class="fas fa-chevron-right"></i>
           </button>
         </div>
       </div>
@@ -515,7 +506,7 @@
     
     <footer>
       <p>Visualizador de Fixture - Club Sahores | Fefi 2025 Clausura</p>
-      <p style="margin-top: 8px;"><i class="fas fa-map-marker-alt"></i> Todos los partidos de la temporada</p>
+      <p style="margin-top: 5px;"><i class="fas fa-map-marker-alt"></i> Todos los partidos de la temporada</p>
     </footer>
   </div>
 
@@ -550,21 +541,24 @@
 
     // Crear iconos personalizados
     const homeIcon = L.divIcon({
-      html: '<div style="background-color: #1e8449; width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="fas fa-home" style="color: white; font-size: 20px;"></i></div>',
+      html: '<div style="background-color: #1e8449; width: 38px; height: 38px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="fas fa-home" style="color: white; font-size: 18px;"></i></div>',
       className: 'custom-div-icon',
-      iconSize: [40, 40],
-      iconAnchor: [20, 20]
+      iconSize: [38, 38],
+      iconAnchor: [19, 19]
     });
 
     const awayIcon = L.divIcon({
-      html: '<div style="background-color: #f9c80e; width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="fas fa-bus" style="color: #0a3d1d; font-size: 16px;"></i></div>',
+      html: '<div style="background-color: #f9c80e; width: 30px; height: 30px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="fas fa-bus" style="color: #0a3d1d; font-size: 14px;"></i></div>',
       className: 'custom-div-icon',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
     });
 
     // Crear un grupo para los marcadores
     const markerGroup = L.layerGroup().addTo(map);
+    
+    // Almacenar referencia a todos los marcadores
+    const markers = {};
 
     // Función para agregar marcadores
     function addMarkers(filteredMatches = matches) {
@@ -604,6 +598,7 @@
           `);
         
         markerGroup.addLayer(marker);
+        markers[match.ID] = marker; // Guardar referencia al marcador
         bounds.push([lat, lon]);
       });
       
@@ -671,6 +666,13 @@
       nextBtn.disabled = (currentValue === '15');
     }
 
+    // Función para abrir el popup de un marcador
+    function openMarkerPopup(markerId) {
+      if (markers[markerId]) {
+        markers[markerId].openPopup();
+      }
+    }
+
     // Inicializar
     document.addEventListener('DOMContentLoaded', () => {
       // Llenar selector de fechas
@@ -696,6 +698,9 @@
           // Mostrar información del partido seleccionado
           showMatchInfo(e.target.value);
           setInfoMode('match');
+          
+          // Abrir automáticamente el popup del marcador
+          setTimeout(() => openMarkerPopup(e.target.value), 500);
         }
         
         // Actualizar estado de los botones de navegación
