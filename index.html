@@ -104,18 +104,6 @@
       width: 100%;
       max-width: 500px;
     }
-
-     .cluster-custom {
-      background-color: #1e8449;
-      color: white;
-      border: 2px solid #f9c80e;
-      border-radius: 50%;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
     
     label {
       font-weight: bold;
@@ -494,7 +482,7 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Crear iconos personalizados
+    // Crear iconos personalizados con colores correctos y tamaño aumentado
     const homeIcon = L.divIcon({
       html: '<div style="background-color: #1e8449; width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="fas fa-home" style="color: white; font-size: 20px;"></i></div>',
       className: 'custom-div-icon',
@@ -509,25 +497,22 @@
       iconAnchor: [16, 16]
     });
 
-    // Crear cluster group
-    const markersCluster = L.markerClusterGroup({
-      iconCreateFunction: function (cluster) {
-        const childCount = cluster.getChildCount();
-        return L.divIcon({
-          html: '<div><span>' + childCount + '</span></div>',
-          className: 'cluster-custom',
-          iconSize: L.point(40, 40)
-        });
-      }
-    });
+    // Contadores para estadísticas
+    let homeMatches = 0;
+    let awayMatches = 0;
+
+    // Crear un grupo para los marcadores
+    const markerGroup = L.layerGroup().addTo(map);
 
     // Función para agregar marcadores
     function addMarkers(filteredMatches = matches) {
-      markersCluster.clearLayers();
+      markerGroup.clearLayers();
+      
+      // Reset counters
+      homeMatches = 0;
+      awayMatches = 0;
       
       let bounds = [];
-      let homeMatches = 0;
-      let awayMatches = 0;
       
       filteredMatches.forEach(match => {
         const isHome = match.Local === "CLUB SAHORES";
@@ -540,17 +525,7 @@
         const markerColor = isHome ? '#1e8449' : '#f9c80e';
         const borderColor = isHome ? '#f9c80e' : '#1e8449';
         
-        // Pequeña variación en las coordenadas para los partidos de local
-        let lat = parseFloat(match.latitud);
-        let lon = parseFloat(match.longitud);
-        
-        if (isHome) {
-          // Agregar pequeña variación aleatoria (aprox 50 metros)
-          lat += (Math.random() * 0.001 - 0.0005);
-          lon += (Math.random() * 0.001 - 0.0005);
-        }
-        
-        const marker = L.marker([lat, lon], {icon})
+        const marker = L.marker([parseFloat(match.latitud), parseFloat(match.longitud)], {icon})
           .bindPopup(`
             <div style="text-align: center; padding: 15px; background: linear-gradient(to right, #0a3d1d, #1e8449); border-radius: 10px; border: 2px solid ${borderColor}; color: white;">
               <h3 style="margin: 0 0 10px; color: ${markerColor}; border-bottom: 1px solid ${borderColor}; padding-bottom: 8px;">Fecha ${match.ID} - ${match.Fecha}</h3>
@@ -564,12 +539,9 @@
             </div>
           `);
         
-        markersCluster.addLayer(marker);
-        bounds.push([lat, lon]);
+        markerGroup.addLayer(marker);
+        bounds.push([parseFloat(match.latitud), parseFloat(match.longitud)]);
       });
-      
-      // Añadir cluster al mapa
-      map.addLayer(markersCluster);
       
       // Actualizar estadísticas
       document.getElementById('totalMatches').textContent = filteredMatches.length;
@@ -583,7 +555,6 @@
       }
     }
 
-    
     // Función para llenar el selector de fechas
     function fillDateSelector() {
       const selector = document.getElementById('fechaFiltro');
