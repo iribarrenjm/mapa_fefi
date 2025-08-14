@@ -226,118 +226,29 @@
       margin-top: 5px;
     }
     
-    /* Modo detalle partido (fecha específica) */
+    /* Modo detalle partido (fecha específica) - AHORA SOLO ESTADÍSTICAS */
     .match-mode {
       display: none;
-      max-width: 700px;
+      max-width: 800px;
       margin: 0 auto;
-    }
-    
-    .match-title {
-      font-weight: bold;
-      color: #f9c80e;
-      margin-bottom: 12px;
-      font-size: 1.2rem;
-    }
-    
-    .match-details {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .match-info-card {
-      background: rgba(30, 132, 73, 0.3);
-      border-radius: 8px;
-      padding: 12px;
-      flex: 1;
-      min-width: 180px;
-      border: 1px solid #f9c80e;
-    }
-    
-    .match-info-card h3 {
-      color: #f9c80e;
-      margin-bottom: 8px;
-      font-size: 1rem;
-    }
-    
-    .match-teams {
-      font-size: 1.3rem;
-      margin: 12px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    
-    .home-team {
-      color: white;
-      font-weight: bold;
-      background: rgba(30, 132, 73, 0.7);
-      padding: 8px 15px;
-      border-radius: 6px;
-    }
-    
-    .away-team {
-      color: white;
-      font-weight: bold;
-      background: rgba(10, 61, 29, 0.7);
-      padding: 8px 15px;
-      border-radius: 6px;
-    }
-    
-    .vs {
-      color: #f9c80e;
-      font-weight: bold;
-      font-size: 1.1rem;
-    }
-    
-    .btn-gmaps {
-      display: inline-block;
-      background: linear-gradient(to right, #0a3d1d, #1e8449);
-      color: white;
-      padding: 12px 25px;
-      border-radius: 8px;
-      text-decoration: none;
-      margin-top: 12px;
-      font-weight: bold;
-      transition: all 0.3s;
-      border: 2px solid #f9c80e;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-      font-size: 1rem;
-    }
-    
-    .btn-gmaps:hover {
-      background: linear-gradient(to right, #1e8449, #0a3d1d);
-      transform: scale(1.03);
-    }
-    
-    .btn-gmaps i {
-      margin-right: 8px;
+      padding: 0 10px;
     }
     
     /* Estadísticas Apertura */
     .apertura-stats {
-      margin-top: 25px;
       background: rgba(10, 61, 29, 0.3);
       border-radius: 8px;
-      padding: 15px;
+      padding: 20px;
       border: 1px solid #f9c80e;
-      max-width: 800px;
-      margin: 25px auto 0;
     }
     
     .apertura-title {
       text-align: center;
       color: #f9c80e;
-      margin-bottom: 15px;
-      font-size: 1.2rem;
-      border-bottom: 1px solid #f9c80e;
-      padding-bottom: 8px;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      border-bottom: 2px solid #f9c80e;
+      padding-bottom: 12px;
     }
     
     .stats-table {
@@ -349,13 +260,13 @@
     .stats-table th {
       background: #0a3d1d;
       color: white;
-      padding: 10px;
+      padding: 12px;
       text-align: center;
       border: 1px solid #f9c80e;
     }
     
     .stats-table td {
-      padding: 10px;
+      padding: 12px;
       border: 1px solid #f9c80e;
       text-align: center;
     }
@@ -420,14 +331,6 @@
         font-size: 1.8rem;
       }
       
-      .match-details {
-        flex-direction: column;
-      }
-      
-      .match-info-card {
-        width: 100%;
-      }
-      
       .select-nav-container {
         gap: 8px;
       }
@@ -440,7 +343,7 @@
       
       .stats-table th, 
       .stats-table td {
-        padding: 8px 5px;
+        padding: 10px 8px;
         font-size: 0.9rem;
       }
     }
@@ -450,22 +353,18 @@
         padding: 15px;
       }
       
-      .match-teams {
-        flex-direction: column;
-      }
-      
       select {
         font-size: 0.9rem;
         padding: 10px 12px;
       }
       
-      .btn-gmaps {
-        padding: 10px 20px;
-        font-size: 0.9rem;
+      .apertura-stats {
+        padding: 15px 10px;
       }
       
-      .apertura-stats {
-        padding: 10px;
+      .apertura-title {
+        font-size: 1.1rem;
+        padding-bottom: 10px;
       }
     }
     
@@ -535,34 +434,11 @@
         </div>
       </div>
       
-      <!-- Modo detalle partido (fecha específica) -->
+      <!-- Modo detalle partido (fecha específica) - AHORA SOLO ESTADÍSTICAS -->
       <div id="matchMode" class="match-mode">
-        <div class="match-title">Partido Seleccionado</div>
-        
-        <div class="match-details">
-          <div class="match-info-card">
-            <h3><i class="fas fa-calendar"></i> Fecha</h3>
-            <div id="matchDate">16/8/2025</div>
-          </div>
-          
-          <div class="match-info-card">
-            <h3><i class="fas fa-map-marker-alt"></i> Ubicación</h3>
-            <div id="matchLocation">VICENTE LOPEZ</div>
-          </div>
-        </div>
-        
-        <div class="match-teams">
-          <div class="home-team" id="homeTeam">Cargando...</div>
-          <div class="vs">VS</div>
-          <div class="away-team" id="awayTeam">Cargando...</div>
-        </div>
-        
-        <a href="#" class="btn-gmaps" id="gmapsBtn"><i class="fas fa-map-marked-alt"></i> Ver en Google Maps</a>
-        
-        <!-- Estadísticas del Torneo Apertura 2025 -->
-        <div id="aperturaStats" class="apertura-stats" style="display: none;">
+        <div class="apertura-stats">
           <div class="apertura-title">
-            <i class="fas fa-chart-bar"></i> Estadísticas Torneo Apertura 2025
+            <i class="fas fa-chart-bar"></i> Estadísticas Torneo Apertura 2025 - Fecha <span id="aperturaMatchId"></span>
           </div>
           <div class="table-responsive">
             <table class="stats-table" id="statsTable">
@@ -845,8 +721,12 @@
 
     // Función para mostrar estadísticas del Torneo Apertura
     function showAperturaStats(matchId) {
-      const statsContainer = document.getElementById('aperturaStats');
+      const statsContainer = document.getElementById('matchMode');
       const statsTableBody = document.getElementById('statsTableBody');
+      const matchIdSpan = document.getElementById('aperturaMatchId');
+      
+      // Actualizar ID de fecha en el título
+      matchIdSpan.textContent = matchId;
       
       // Limpiar tabla existente
       statsTableBody.innerHTML = '';
@@ -868,25 +748,11 @@
           statsTableBody.appendChild(row);
         });
         
+        // Mostrar contenedor de estadísticas
         statsContainer.style.display = 'block';
       } else {
+        // Ocultar si no hay datos
         statsContainer.style.display = 'none';
-      }
-    }
-
-    // Función para mostrar información del partido seleccionado
-    function showMatchInfo(matchId) {
-      const match = matches.find(m => m.ID === matchId);
-      
-      if (match) {
-        document.getElementById('homeTeam').textContent = match.Local;
-        document.getElementById('awayTeam').textContent = match.Visitante;
-        document.getElementById('matchDate').textContent = match.Fecha;
-        document.getElementById('matchLocation').textContent = match.Local;
-        document.getElementById('gmapsBtn').href = `https://www.google.com/maps?q=${match.latitud},${match.longitud}`;
-        
-        // Mostrar estadísticas del Torneo Apertura
-        showAperturaStats(matchId);
       }
     }
 
@@ -894,12 +760,10 @@
     function setInfoMode(mode) {
       const statsMode = document.getElementById('statsMode');
       const matchMode = document.getElementById('matchMode');
-      const aperturaStats = document.getElementById('aperturaStats');
       
       if (mode === 'all') {
         statsMode.style.display = 'flex';
         matchMode.style.display = 'none';
-        aperturaStats.style.display = 'none';
       } else {
         statsMode.style.display = 'none';
         matchMode.style.display = 'block';
@@ -948,8 +812,8 @@
           const filteredMatch = matches.filter(m => m.ID === e.target.value);
           addMarkers(filteredMatch);
           
-          // Mostrar información del partido seleccionado
-          showMatchInfo(e.target.value);
+          // Mostrar estadísticas del Torneo Apertura
+          showAperturaStats(e.target.value);
           setInfoMode('match');
           
           // Abrir automáticamente el popup del marcador
