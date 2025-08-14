@@ -55,21 +55,20 @@
     }
     
     .club-logo {
-      width: 80px;
-      height: 80px;
-      background: #1e8449;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 3px solid #f9c80e;
-      box-shadow: 0 0 15px rgba(249, 200, 14, 0.5);
-    }
-    
-    .club-logo i {
-      font-size: 40px;
-      color: #f9c80e;
-    }
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #f9c80e;
+  box-shadow: 0 0 15px rgba(249, 200, 14, 0.5);
+  overflow: hidden; /* Nuevo: para contener la imagen */
+  background: transparent; /* Quitamos el fondo verde */
+}
+
+.club-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ajusta la imagen manteniendo proporciones */
+}
     
     h1 {
       color: white;
@@ -386,7 +385,7 @@
       </div>
       <div class="logo-container">
         <div class="club-logo">
-          <i class="fas fa-futbol"></i>
+          <img src="sahores.png" alt="Logo Club Sahores">
         </div>
       </div>
     </div>
