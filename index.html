@@ -2,40 +2,43 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Fixture CLUB SAHORES - Fefi 2025 Clausura</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture Club Sahores</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
     
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0a3d1d, #1e8449, #0a3d1d);
-      color: #f0f0f0;
+      background: linear-gradient(to bottom, #0a3d1d, #1e8449);
+      color: white;
       min-height: 100vh;
-      line-height: 1.6;
-      padding: 20px;
+      padding: 0;
     }
     
     .container {
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 0 auto;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      padding: 0;
+      background: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
     }
     
     /* Encabezado minimalista */
     .minimal-header {
       display: flex;
-      background: rgba(10, 61, 29, 0.95);
-      padding: 20px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 20px 15px;
+      background: rgba(0, 0, 0, 0.4);
       border-bottom: 2px solid #f9c80e;
     }
     
@@ -317,6 +320,50 @@
       margin-right: 8px;
     }
     
+    /* Estadísticas Apertura */
+    .apertura-stats {
+      margin-top: 25px;
+      background: rgba(10, 61, 29, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid #f9c80e;
+      max-width: 800px;
+      margin: 25px auto 0;
+    }
+    
+    .apertura-title {
+      text-align: center;
+      color: #f9c80e;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #f9c80e;
+      padding-bottom: 8px;
+    }
+    
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    
+    .stats-table th {
+      background: #0a3d1d;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #f9c80e;
+    }
+    
+    .stats-table td {
+      padding: 10px;
+      border: 1px solid #f9c80e;
+      text-align: center;
+    }
+    
+    .stats-table tbody tr:nth-child(even) {
+      background: rgba(30, 132, 73, 0.2);
+    }
+    
     footer {
       text-align: center;
       padding: 15px;
@@ -390,6 +437,12 @@
         height: 36px;
         font-size: 1rem;
       }
+      
+      .stats-table th, 
+      .stats-table td {
+        padding: 8px 5px;
+        font-size: 0.9rem;
+      }
     }
     
     @media (max-width: 480px) {
@@ -409,6 +462,10 @@
       .btn-gmaps {
         padding: 10px 20px;
         font-size: 0.9rem;
+      }
+      
+      .apertura-stats {
+        padding: 10px;
       }
     }
     
@@ -501,6 +558,27 @@
         </div>
         
         <a href="#" class="btn-gmaps" id="gmapsBtn"><i class="fas fa-map-marked-alt"></i> Ver en Google Maps</a>
+        
+        <!-- Estadísticas del Torneo Apertura 2025 -->
+        <div id="aperturaStats" class="apertura-stats" style="display: none;">
+          <div class="apertura-title">
+            <i class="fas fa-chart-bar"></i> Estadísticas Torneo Apertura 2025
+          </div>
+          <div class="table-responsive">
+            <table class="stats-table" id="statsTable">
+              <thead>
+                <tr>
+                  <th>Categoría</th>
+                  <th>Partido</th>
+                  <th>Resultado</th>
+                </tr>
+              </thead>
+              <tbody id="statsTableBody">
+                <!-- Las filas se generarán dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -530,6 +608,145 @@
       {ID: "14", Fecha: "15/11/2025", Local: "JOVENES DEPORTISTAS", Visitante: "CLUB SAHORES", latitud: "-34.68508", longitud: "-58.46308"},
       {ID: "15", Fecha: "22/11/2025", Local: "CLUB SAHORES", Visitante: "HOMERO", latitud: "-34.6016603", longitud: "-58.481546"}
     ];
+
+    // Datos del Torneo Apertura 2025
+    const aperturaStats = {
+      "1": {
+        "18": {"equipos": "Club Sahores - Vicente Lopez", "resultado": "8 - 0"},
+        "12": {"equipos": "Club Sahores - Vicente Lopez", "resultado": "9 - 4"},
+        "17": {"equipos": "Club Sahores - Vicente Lopez", "resultado": "9 - 1"},
+        "13": {"equipos": "Club Sahores - Vicente Lopez", "resultado": "1 - 4"},
+        "16": {"equipos": "Club Sahores - Vicente Lopez", "resultado": "4 - 3"},
+        "15": {"equipos": "Club Sahores - Vicente Lopez", "resultado": "6 - 0"},
+        "14": {"equipos": "Club Sahores - Vicente Lopez", "resultado": "10 - 0"}
+      },
+      "2": {
+        "18": {"equipos": "Ferro C. O. - Club Sahores", "resultado": "1 - 0"},
+        "12": {"equipos": "Ferro C. O. - Club Sahores", "resultado": "2 - 13"},
+        "17": {"equipos": "Ferro C. O. - Club Sahores", "resultado": "1 - 11"},
+        "13": {"equipos": "Ferro C. O. - Club Sahores", "resultado": "5 - 3"},
+        "16": {"equipos": "Ferro C. O. - Club Sahores", "resultado": "1 - 0"},
+        "15": {"equipos": "Ferro C. O. - Club Sahores", "resultado": "1 - 6"},
+        "14": {"equipos": "Ferro C. O. - Club Sahores", "resultado": "4 - 3"}
+      },
+      "3": {
+        "18": {"equipos": "Club Sahores - Torino", "resultado": "GP - NP"},
+        "12": {"equipos": "Club Sahores - Torino", "resultado": "4 - 6"},
+        "17": {"equipos": "Club Sahores - Torino", "resultado": "10 - 0"},
+        "13": {"equipos": "Club Sahores - Torino", "resultado": "3 - 4"},
+        "16": {"equipos": "Club Sahores - Torino", "resultado": "9 - 0"},
+        "15": {"equipos": "Club Sahores - Torino", "resultado": "6 - 1"},
+        "14": {"equipos": "Club Sahores - Torino", "resultado": "6 - 3"}
+      },
+      "4": {
+        "18": {"equipos": "Club Sahores - Giuffra", "resultado": "4 - 6"},
+        "12": {"equipos": "Club Sahores - Giuffra", "resultado": "3 - 1"},
+        "17": {"equipos": "Club Sahores - Giuffra", "resultado": "1 - 1"},
+        "13": {"equipos": "Club Sahores - Giuffra", "resultado": "6 - 3"},
+        "16": {"equipos": "Club Sahores - Giuffra", "resultado": "4 - 4"},
+        "15": {"equipos": "Club Sahores - Giuffra", "resultado": "3 - 2"},
+        "14": {"equipos": "Club Sahores - Giuffra", "resultado": "8 - 1"}
+      },
+      "5": {
+        "18": {"equipos": "Mendeville - Club Sahores", "resultado": "1 - 6"},
+        "12": {"equipos": "Mendeville - Club Sahores", "resultado": "7 - 5"},
+        "17": {"equipos": "Mendeville - Club Sahores", "resultado": "1 - 4"},
+        "13": {"equipos": "Mendeville - Club Sahores", "resultado": "5 - 2"},
+        "16": {"equipos": "Mendeville - Club Sahores", "resultado": "4 - 3"},
+        "15": {"equipos": "Mendeville - Club Sahores", "resultado": "5 - 3"},
+        "14": {"equipos": "Mendeville - Club Sahores", "resultado": "4 - 10"}
+      },
+      "6": {
+        "18": {"equipos": "Club Sahores - El Trébol F C", "resultado": "6 - 0"},
+        "12": {"equipos": "Club Sahores - El Trébol F C", "resultado": "2 - 4"},
+        "17": {"equipos": "Club Sahores - El Trébol F C", "resultado": "5 - 6"},
+        "13": {"equipos": "Club Sahores - El Trébol F C", "resultado": "5 - 5"},
+        "16": {"equipos": "Club Sahores - El Trébol F C", "resultado": "3 - 2"},
+        "15": {"equipos": "Club Sahores - El Trébol F C", "resultado": "2 - 3"},
+        "14": {"equipos": "Club Sahores - El Trébol F C", "resultado": "10 - 4"}
+      },
+      "7": {
+        "18": {"equipos": "Mitre L. M. R. - Club Sahores", "resultado": "2 - 10"},
+        "12": {"equipos": "Mitre L. M. R. - Club Sahores", "resultado": "2 - 1"},
+        "17": {"equipos": "Mitre L. M. R. - Club Sahores", "resultado": "4 - 4"},
+        "13": {"equipos": "Mitre L. M. R. - Club Sahores", "resultado": "7 - 3"},
+        "16": {"equipos": "Mitre L. M. R. - Club Sahores", "resultado": "5 - 7"},
+        "15": {"equipos": "Mitre L. M. R. - Club Sahores", "resultado": "3 - 3"},
+        "14": {"equipos": "Mitre L. M. R. - Club Sahores", "resultado": "6 - 7"}
+      },
+      "8": {
+        "18": {"equipos": "Club Sahores - Los Leones de Villa Soldati", "resultado": "0 - 6"},
+        "12": {"equipos": "Club Sahores - Los Leones de Villa Soldati", "resultado": "2 - 5"},
+        "17": {"equipos": "Club Sahores - Los Leones de Villa Soldati", "resultado": "2 - 3"},
+        "13": {"equipos": "Club Sahores - Los Leones de Villa Soldati", "resultado": "6 - 2"},
+        "16": {"equipos": "Club Sahores - Los Leones de Villa Soldati", "resultado": "2 - 9"},
+        "15": {"equipos": "Club Sahores - Los Leones de Villa Soldati", "resultado": "3 - 2"},
+        "14": {"equipos": "Club Sahores - Los Leones de Villa Soldati", "resultado": "11 - 3"}
+      },
+      "9": {
+        "18": {"equipos": "Estrella - Club Sahores", "resultado": "0 - 0"},
+        "12": {"equipos": "Estrella - Club Sahores", "resultado": "9 - 6"},
+        "17": {"equipos": "Estrella - Club Sahores", "resultado": "2 - 7"},
+        "13": {"equipos": "Estrella - Club Sahores", "resultado": "8 - 5"},
+        "16": {"equipos": "Estrella - Club Sahores", "resultado": "1 - 1"},
+        "15": {"equipos": "Estrella - Club Sahores", "resultado": "1 - 4"},
+        "14": {"equipos": "Estrella - Club Sahores", "resultado": "3 - 7"}
+      },
+      "10": {
+        "18": {"equipos": "Club Sahores - Fátima", "resultado": "5 - 3"},
+        "12": {"equipos": "Club Sahores - Fátima", "resultado": "2 - 7"},
+        "17": {"equipos": "Club Sahores - Fátima", "resultado": "4 - 1"},
+        "13": {"equipos": "Club Sahores - Fátima", "resultado": "4 - 6"},
+        "16": {"equipos": "Club Sahores - Fátima", "resultado": "1 - 4"},
+        "15": {"equipos": "Club Sahores - Fátima", "resultado": "4 - 2"},
+        "14": {"equipos": "Club Sahores - Fátima", "resultado": "6 - 1"}
+      },
+      "11": {
+        "18": {"equipos": "Añasco - Club Sahores", "resultado": "2 - 4"},
+        "12": {"equipos": "Añasco - Club Sahores", "resultado": "5 - 3"},
+        "17": {"equipos": "Añasco - Club Sahores", "resultado": "0 - 5"},
+        "13": {"equipos": "Añasco - Club Sahores", "resultado": "6 - 1"},
+        "16": {"equipos": "Añasco - Club Sahores", "resultado": "2 - 0"},
+        "15": {"equipos": "Añasco - Club Sahores", "resultado": "4 - 3"},
+        "14": {"equipos": "Añasco - Club Sahores", "resultado": "3 - 6"}
+      },
+      "12": {
+        "18": {"equipos": "Club Sahores - Pacífico Mar Plast", "resultado": "6 - 0"},
+        "12": {"equipos": "Club Sahores - Pacífico Mar Plast", "resultado": "11 - 2"},
+        "17": {"equipos": "Club Sahores - Pacífico Mar Plast", "resultado": "4 - 3"},
+        "13": {"equipos": "Club Sahores - Pacífico Mar Plast", "resultado": "4 - 2"},
+        "16": {"equipos": "Club Sahores - Pacífico Mar Plast", "resultado": "1 - 2"},
+        "15": {"equipos": "Club Sahores - Pacífico Mar Plast", "resultado": "4 - 0"},
+        "14": {"equipos": "Club Sahores - Pacífico Mar Plast", "resultado": "7 - 4"}
+      },
+      "13": {
+        "18": {"equipos": "Asoc. Juventud - Club Sahores", "resultado": "0 - 3"},
+        "12": {"equipos": "Asoc. Juventud - Club Sahores", "resultado": "1 - 2"},
+        "17": {"equipos": "Asoc. Juventud - Club Sahores", "resultado": "0 - 2"},
+        "13": {"equipos": "Asoc. Juventud - Club Sahores", "resultado": "0 - 2"},
+        "16": {"equipos": "Asoc. Juventud - Club Sahores", "resultado": "2 - 2"},
+        "15": {"equipos": "Asoc. Juventud - Club Sahores", "resultado": "2 - 2"},
+        "14": {"equipos": "Asoc. Juventud - Club Sahores", "resultado": "1 - 6"}
+      },
+      "14": {
+        "18": {"equipos": "Club Sahores - Jovenes Deportistas", "resultado": "2 - 0"},
+        "12": {"equipos": "Club Sahores - Jovenes Deportistas", "resultado": "3 - 3"},
+        "17": {"equipos": "Club Sahores - Jovenes Deportistas", "resultado": "1 - 4"},
+        "13": {"equipos": "Club Sahores - Jovenes Deportistas", "resultado": "1 - 7"},
+        "16": {"equipos": "Club Sahores - Jovenes Deportistas", "resultado": "5 - 0"},
+        "15": {"equipos": "Club Sahores - Jovenes Deportistas", "resultado": "6 - 1"},
+        "14": {"equipos": "Club Sahores - Jovenes Deportistas", "resultado": "3 - 3"}
+      },
+      "15": {
+        "18": {"equipos": "Homero - Club Sahores", "resultado": "1 - 6"},
+        "12": {"equipos": "Homero - Club Sahores", "resultado": "2 - 8"},
+        "17": {"equipos": "Homero - Club Sahores", "resultado": "1 - 5"},
+        "13": {"equipos": "Homero - Club Sahores", "resultado": "5 - 1"},
+        "16": {"equipos": "Homero - Club Sahores", "resultado": "0 - 9"},
+        "15": {"equipos": "Homero - Club Sahores", "resultado": "2 - 2"},
+        "14": {"equipos": "Homero - Club Sahores", "resultado": "2 - 6"}
+      }
+    };
 
     // Inicializar el mapa
     const map = L.map('map').setView([-34.60, -58.45], 11);
@@ -626,6 +843,37 @@
       });
     }
 
+    // Función para mostrar estadísticas del Torneo Apertura
+    function showAperturaStats(matchId) {
+      const statsContainer = document.getElementById('aperturaStats');
+      const statsTableBody = document.getElementById('statsTableBody');
+      
+      // Limpiar tabla existente
+      statsTableBody.innerHTML = '';
+      
+      // Verificar si hay estadísticas para esta fecha
+      if (aperturaStats[matchId]) {
+        const categories = Object.keys(aperturaStats[matchId]);
+        
+        categories.forEach(cat => {
+          const data = aperturaStats[matchId][cat];
+          const row = document.createElement('tr');
+          
+          row.innerHTML = `
+            <td>Sub-${cat}</td>
+            <td>${data.equipos}</td>
+            <td>${data.resultado}</td>
+          `;
+          
+          statsTableBody.appendChild(row);
+        });
+        
+        statsContainer.style.display = 'block';
+      } else {
+        statsContainer.style.display = 'none';
+      }
+    }
+
     // Función para mostrar información del partido seleccionado
     function showMatchInfo(matchId) {
       const match = matches.find(m => m.ID === matchId);
@@ -636,6 +884,9 @@
         document.getElementById('matchDate').textContent = match.Fecha;
         document.getElementById('matchLocation').textContent = match.Local;
         document.getElementById('gmapsBtn').href = `https://www.google.com/maps?q=${match.latitud},${match.longitud}`;
+        
+        // Mostrar estadísticas del Torneo Apertura
+        showAperturaStats(matchId);
       }
     }
 
@@ -643,10 +894,12 @@
     function setInfoMode(mode) {
       const statsMode = document.getElementById('statsMode');
       const matchMode = document.getElementById('matchMode');
+      const aperturaStats = document.getElementById('aperturaStats');
       
       if (mode === 'all') {
         statsMode.style.display = 'flex';
         matchMode.style.display = 'none';
+        aperturaStats.style.display = 'none';
       } else {
         statsMode.style.display = 'none';
         matchMode.style.display = 'block';
